@@ -27,5 +27,7 @@ public class Alarm {
     @Column(nullable = true)
     private LocalDateTime stopAt;
 
+    private LocalDateTime nextFireAt;
+
     private boolean active;
 }

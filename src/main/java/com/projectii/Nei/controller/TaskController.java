@@ -26,6 +26,7 @@ public class TaskController {
 
     private final TaskService taskService;
 
+
     @PostMapping("/create")
     public ResponseEntity<CreatedTask> createATaskForAWeekDay(
             @RequestBody CreateATask createATask
@@ -37,7 +38,7 @@ public class TaskController {
     }
 
 
-    @PatchMapping("/add-subtasks/{id}")
+    @PatchMapping("/add-subtasks/{taskId}")
     public ResponseEntity<CreatedTask> addSubtasks (@PathVariable UUID taskId,@RequestBody List<SubTaskRequest> subTaskRequest){
         return ResponseEntity.ok(taskService.addSubTasks(taskId,subTaskRequest));
     }
@@ -81,8 +82,4 @@ public class TaskController {
         taskService.deleteTask(id);
         return ResponseEntity.noContent().build();
     }
-
-
-
-    
 }

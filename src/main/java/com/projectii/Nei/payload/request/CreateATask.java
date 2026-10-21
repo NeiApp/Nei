@@ -1,10 +1,14 @@
 package com.projectii.Nei.payload.request;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+
 import java.time.LocalTime;
-import java.util.List;
 
 public record CreateATask(
-        String title,        // what the task is
-        LocalTime startTime, // when it starts
-        LocalTime endTime,   // when it ends
-        AlarmRequest alarm // optional — do they want hourly reminders
+        @NotBlank String title,
+        String description,
+        @NotNull LocalTime startTime,
+        @NotNull LocalTime endTime,
+        @Valid AlarmRequest alarm // optional
 ) {}

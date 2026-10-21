@@ -1,12 +1,10 @@
 package com.projectii.Nei.ui.app;
 
+import com.projectii.Nei.service.serviceImpl.AlarmBroadcaster;
 import com.projectii.Nei.ui.service.SettingsUiService;
 import com.projectii.Nei.ui.shared.Appearance;
 import com.projectii.Nei.ui.welcome.WelcomeView;
-import com.vaadin.flow.component.HasElement;
-import com.vaadin.flow.component.Key;
-import com.vaadin.flow.component.KeyModifier;
-import com.vaadin.flow.component.Shortcuts;
+import com.vaadin.flow.component.*;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.Div;
@@ -19,6 +17,8 @@ import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.RouterLayout;
+import com.vaadin.flow.shared.Registration;
+import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -35,9 +35,12 @@ public class MainLayout extends Div implements RouterLayout, BeforeEnterObserver
     private final SettingsUiService settings;
     private final Div content = new Div();
     private final Map<String, Button> railButtons = new HashMap<>();
+    private final AlarmBroadcaster broadcaster;
+    private Registration alarmReg;
 
-    public MainLayout(SettingsUiService settings) {
+    public MainLayout(SettingsUiService settings, AlarmBroadcaster broadcaster) {
         this.settings = settings;
+        this.broadcaster = broadcaster;
         addClassName("nei-app");
         setSizeFull();
 
@@ -126,4 +129,16 @@ public class MainLayout extends Div implements RouterLayout, BeforeEnterObserver
             if (route.equals(current)) b.addClassName("active"); else b.removeClassName("active");
         });
     }
+
+
+
+    @Override
+    protected void onAttach(AttachEvent e) {
+        UI ui = e.getUI();
+        alarmReg = broadcaster.register(n ->
+                ui.access(() -> Notification.show(n.message(), 8000, Notification.Position.TOP_END)));
+    }
+
+    @Override
+    protected void onDetach(DetachEvent e) { if (alarmReg != null) alarmReg.remove(); }
 }

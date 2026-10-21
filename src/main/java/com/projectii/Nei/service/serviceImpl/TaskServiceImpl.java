@@ -11,10 +11,12 @@ import com.projectii.Nei.payload.request.SubTaskRequest;
 import com.projectii.Nei.payload.response.AlarmResponse;
 import com.projectii.Nei.payload.response.CreatedTask;
 import com.projectii.Nei.payload.response.SubTaskResponse;
+import com.projectii.Nei.payload.utitityRecords.AlarmNotification;
 import com.projectii.Nei.repository.TaskRepository;
 import com.projectii.Nei.repository.WeekDayRepository;
 import com.projectii.Nei.repository.WeekRepository;
 import com.projectii.Nei.service.TaskService;
+import com.projectii.Nei.service.utilityService.NotificationSender;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -37,7 +39,7 @@ public class TaskServiceImpl implements TaskService {
 
     private final TaskRepository taskRepository;
 
-    private final SubTaskMapper subTaskMapper;
+    private final NotificationSender notifier;
 
     // TODO(roadmap #7): always uses today. Add date, list and description to CreateATask.
 
@@ -65,6 +67,7 @@ public class TaskServiceImpl implements TaskService {
         task.setWeekDay(weekDay);
         task.setDate(today);
         task.setStatus(TaskStatus.PENDING);
+        task.getAlarm().setActive(false);
 
         return taskMapper.toResponse(taskRepository.save(task));
     }
@@ -101,25 +104,25 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public AlarmResponse createAlarmReminder(UUID id, AlarmRequest alarmRequest) {
+    @Transactional
+    public AlarmResponse createAlarmReminder(UUID id, AlarmRequest req) {
         Task task = taskRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("task does not exist"));
-        if (task.isRecurring()){
-            throw new RuntimeException("task is already recurring");
-        }
 
-        Alarm alarm = taskMapper.toAlarm(alarmRequest);
-        alarm.setStopAt(
-                task.getDate().atTime(task.getEndTime() != null ? task.getEndTime() : LocalTime.MAX)
-        );
+        Alarm alarm = taskMapper.toAlarm(req);
+        if (alarm.getIntervalMinutes() < 1) throw new RuntimeException("interval must be at least 1 minute");
 
-        task.setAlarm(alarm);
+        LocalDateTime stopAt = task.getDate().atTime(task.getEndTime() != null ? task.getEndTime() : LocalTime.MAX);
+        if (!stopAt.isAfter(LocalDateTime.now())) throw new RuntimeException("the task has already ended");
+
+        alarm.setStopAt(stopAt);
+        alarm.setNextFireAt(alarm.getStartAt().plusMinutes(alarm.getIntervalMinutes()));
+        task.setAlarm(alarm);          // replaces an existing alarm, so changing 60 to 50 works
         task.setRecurring(true);
         taskRepository.save(task);
-
-
         return new AlarmResponse(alarm.isActive());
     }
+
 
     @Override
     public void deleteTask(UUID id) {
@@ -136,14 +139,12 @@ public class TaskServiceImpl implements TaskService {
                 .map(request -> {
                     SubTasks subTask = new SubTasks();
                     subTask.setNameOfSubTask(request.nameOfSubTask());
-                    // map any other fields here
                     return subTask;
                 })
                 .toList();
 
         task.addSubTasks(subTasks);
 
-        // Because Task cascades ALL to subTasks, saving the parent persists the children.
         taskRepository.save(task);
 
 //        return subTasks.stream()
@@ -170,28 +171,32 @@ public class TaskServiceImpl implements TaskService {
 
     // send through a NotificationSender interface (desktop tray now, phone later).
 
-    @Scheduled(fixedRate = 60000) // every 60 seconds
+    @Scheduled(fixedDelay = 30_000)
+    @Transactional                       // changes to alarm are saved when the method ends
     public void checkAlarms() {
-        var now = LocalDateTime.now();
+        LocalDateTime now = LocalDateTime.now();
 
-        List<Task> tasksWithActiveAlarms = taskRepository
-                .findByRecurringTrueAndStatus(TaskStatus.PENDING);
-
-        for (Task task : tasksWithActiveAlarms) {
+        for (Task task : taskRepository.findByRecurringTrueAndStatus(TaskStatus.PENDING)) {
             Alarm alarm = task.getAlarm();
             if (alarm == null || !alarm.isActive()) continue;
 
-            if (now.isAfter(alarm.getStopAt())) {
+            // time is up
+            if (!now.isBefore(alarm.getStopAt())) {
+                if (task.getEndTime() != null) {
+                    notifier.send(AlarmNotification.timesUp(task));
+                }
                 alarm.setActive(false);
                 continue;
             }
 
-            long minutesSinceStart = Duration.between(alarm.getStartAt(), now).toMinutes();
+            // interval reminder
+            if (!now.isBefore(alarm.getNextFireAt())) {
+                long left = Duration.between(now, alarm.getStopAt()).toMinutes();
+                notifier.send(AlarmNotification.reminder(task, left));
 
-            // fires every intervalMinutes, e.g. every 60 mins
-            if (minutesSinceStart > 0 && minutesSinceStart % alarm.getIntervalMinutes() == 0) {
-                // trigger notification — push to Vaadin UI or log for now
-                System.out.println("REMINDER: " + task.getTitle() + " is still pending!");
+                LocalDateTime next = alarm.getNextFireAt().plusMinutes(alarm.getIntervalMinutes());
+                while (!next.isAfter(now)) next = next.plusMinutes(alarm.getIntervalMinutes()); // skip missed ones
+                alarm.setNextFireAt(next);
             }
         }
     }

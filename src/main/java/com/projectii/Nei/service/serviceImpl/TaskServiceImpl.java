@@ -109,15 +109,35 @@ public class TaskServiceImpl implements TaskService {
         Task task = taskRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("task does not exist"));
 
-        Alarm alarm = taskMapper.toAlarm(req);
-        if (alarm.getIntervalMinutes() < 1) throw new RuntimeException("interval must be at least 1 minute");
+        if (req.intervalMinutes() < 1)
+            throw new RuntimeException("interval must be at least 1 minute");
 
-        LocalDateTime stopAt = task.getDate().atTime(task.getEndTime() != null ? task.getEndTime() : LocalTime.MAX);
-        if (!stopAt.isAfter(LocalDateTime.now())) throw new RuntimeException("the task has already ended");
+        LocalDate date = task.getDate();
 
+        // alarm window: request first, then task times, then sensible defaults
+        LocalTime startTime = req.startTime() != null ? req.startTime()
+                : task.getStartTime() != null ? task.getStartTime()
+                : LocalTime.now();
+        LocalTime endTime = req.endTime() != null ? req.endTime()
+                : task.getEndTime() != null ? task.getEndTime()
+                : LocalTime.MAX;
+
+        LocalDateTime startAt = date.atTime(startTime);
+        LocalDateTime stopAt  = date.atTime(endTime);
+
+        if (!stopAt.isAfter(startAt))
+            throw new RuntimeException("alarm end must be after alarm start");
+        if (!stopAt.isAfter(LocalDateTime.now()))
+            throw new RuntimeException("the alarm window has already ended");
+
+        Alarm alarm = new Alarm();
+        alarm.setIntervalMinutes(req.intervalMinutes());
+        alarm.setStartAt(startAt);
         alarm.setStopAt(stopAt);
-        alarm.setNextFireAt(alarm.getStartAt().plusMinutes(alarm.getIntervalMinutes()));
-        task.setAlarm(alarm);          // replaces an existing alarm, so changing 60 to 50 works
+        alarm.setNextFireAt(startAt);   // first reminder at the start time
+        alarm.setActive(true);
+
+        task.setAlarm(alarm);           // replaces any existing alarm
         task.setRecurring(true);
         taskRepository.save(task);
         return new AlarmResponse(alarm.isActive());
@@ -172,7 +192,7 @@ public class TaskServiceImpl implements TaskService {
     // send through a NotificationSender interface (desktop tray now, phone later).
 
     @Scheduled(fixedDelay = 30_000)
-    @Transactional                       // changes to alarm are saved when the method ends
+    @Transactional
     public void checkAlarms() {
         LocalDateTime now = LocalDateTime.now();
 
@@ -180,14 +200,15 @@ public class TaskServiceImpl implements TaskService {
             Alarm alarm = task.getAlarm();
             if (alarm == null || !alarm.isActive()) continue;
 
-            // time is up
+            // alarm window is over
             if (!now.isBefore(alarm.getStopAt())) {
-                if (task.getEndTime() != null) {
-                    notifier.send(AlarmNotification.timesUp(task));
-                }
+                notifier.send(AlarmNotification.timesUp(task));
                 alarm.setActive(false);
                 continue;
             }
+
+            // not started yet (nextFireAt = startAt, so this is a safety net)
+            if (now.isBefore(alarm.getStartAt())) continue;
 
             // interval reminder
             if (!now.isBefore(alarm.getNextFireAt())) {
@@ -200,6 +221,5 @@ public class TaskServiceImpl implements TaskService {
             }
         }
     }
-
 }
 

@@ -31,7 +31,7 @@ public class Task {
 
     private String description;
 
-    @Column(name = "start_time")  // fixed typo: was "state_time"
+    @Column(name = "start_time")
     private LocalTime startTime;
 
     @Column(name = "end_time")

@@ -1,6 +1,7 @@
 package com.projectii.Nei.model;
 
 
+import com.projectii.Nei.enums.TaskCategory;
 import com.projectii.Nei.enums.TaskStatus;
 import com.vaadin.copilot.shaded.checkerframework.checker.units.qual.C;
 import jakarta.persistence.*;
@@ -17,7 +18,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Entity
-@Table(name = "Task")
+@Table(name = "Task", indexes = @Index(name = "idx_task_date", columnList = "date"))
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
@@ -66,6 +67,10 @@ public class Task {
 
     @OneToMany(mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<SubTasks> subTasks = new ArrayList<>();
+
+    @Enumerated(EnumType.STRING)
+    @Column(length = 20)
+    private TaskCategory category = TaskCategory.PERSONAL;
 
     public void addSubTask(SubTasks subTask) {
         subTasks.add(subTask);

@@ -1,16 +1,12 @@
 package com.projectii.Nei.service.serviceImpl;
 
+import com.projectii.Nei.enums.TaskCategory;
 import com.projectii.Nei.enums.TaskStatus;
-import com.projectii.Nei.exception.ActiveWeekException;
-import com.projectii.Nei.mapper.SubTaskMapper;
 import com.projectii.Nei.mapper.TaskMapper;
 import com.projectii.Nei.model.*;
-import com.projectii.Nei.payload.request.AlarmRequest;
-import com.projectii.Nei.payload.request.CreateATask;
-import com.projectii.Nei.payload.request.SubTaskRequest;
+import com.projectii.Nei.payload.request.*;
 import com.projectii.Nei.payload.response.AlarmResponse;
 import com.projectii.Nei.payload.response.CreatedTask;
-import com.projectii.Nei.payload.response.SubTaskResponse;
 import com.projectii.Nei.payload.utitityRecords.AlarmNotification;
 import com.projectii.Nei.repository.TaskRepository;
 import com.projectii.Nei.repository.WeekDayRepository;
@@ -22,9 +18,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.time.*;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -41,33 +37,22 @@ public class TaskServiceImpl implements TaskService {
 
     private final NotificationSender notifier;
 
-    // TODO(roadmap #7): always uses today. Add date, list and description to CreateATask.
+    private WeekService weekService;
 
     @Override
-
     @Transactional
+    public CreatedTask createTask(CreateATask req) {
+        if (req.title() == null || req.title().isBlank()) throw new IllegalArgumentException("title is required");
+        checkTimes(req.startTime(), req.endTime());
 
-    public CreatedTask createTask(CreateATask createATask) {
-        var today = LocalDate.now();
+        LocalDate date = req.date() != null ? req.date() : LocalDate.now();
 
-        // Find current week by date
-        Weeks week = weekRepository
-                .findByStartDateLessThanEqualAndEndDateGreaterThanEqual(today, today)
-                .orElseThrow(() -> new ActiveWeekException("No active week found"));
-
-        // Find today's WeekDay inside that week
-        DayOfWeek dayOfWeek = today.getDayOfWeek();
-
-        WeekDay weekDay = weekDayRepository
-                .findByWeeksAndDayOfWeek(week, dayOfWeek)
-                .orElseThrow(() -> new ActiveWeekException("No WeekDay found for today"));
-
-        // Map and save
-        Task task = taskMapper.toEntity(createATask);
-        task.setWeekDay(weekDay);
-        task.setDate(today);
+        Task task = taskMapper.toEntity(req);
+        task.setDate(date);
         task.setStatus(TaskStatus.PENDING);
-        task.getAlarm().setActive(false);
+        if (task.getCategory() == null) task.setCategory(TaskCategory.PERSONAL);
+        task.setWeekDay(findWeekDay(date).orElse(null));
+        if (req.alarm() != null) attachAlarm(task, req.alarm());
 
         return taskMapper.toResponse(taskRepository.save(task));
     }
@@ -109,9 +94,6 @@ public class TaskServiceImpl implements TaskService {
         Task task = taskRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("task does not exist"));
 
-        if (req.intervalMinutes() < 1)
-            throw new RuntimeException("interval must be at least 1 minute");
-
         LocalDate date = task.getDate();
 
         // alarm window: request first, then task times, then sensible defaults
@@ -150,6 +132,7 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
+    @Transactional
     public CreatedTask addSubTasks(UUID taskId, List<SubTaskRequest> requests) {
         Task task = taskRepository.findById(taskId)
                 .orElseThrow(() -> new EntityNotFoundException(
@@ -174,6 +157,29 @@ public class TaskServiceImpl implements TaskService {
         return taskMapper.toResponse(task);
     }
 
+    @Override
+    @Transactional
+    public CreatedTask updateTask(UUID id, UpdateTask req) {
+        Task task = taskRepository.findById(id).orElseThrow(() -> new RuntimeException("task does not exist"));
+        taskMapper.update(req, task);
+        checkTimes(task.getStartTime(), task.getEndTime());
+        if (req.date() != null) task.setWeekDay(findWeekDay(task.getDate()).orElse(null));
+        if (task.getAlarm() != null) scheduleAlarm(task, task.getAlarm());
+        return taskMapper.toResponse(task);
+    }
+
+    @Override
+    @Transactional
+    public void updateStatus(UUID id, StatusRequest statusRequest) {
+        Task task =taskRepository.findById(id).orElseThrow(()-> new RuntimeException("Task does not exist"));
+        task.setStatus(statusRequest.status());
+        if (statusRequest.status() != TaskStatus.PENDING && task.getAlarm() != null) task.getAlarm().setActive(false);
+    }
+
+    private void checkTimes(LocalTime start, LocalTime end) {
+        if (start != null && end != null && !end.isAfter(start)) throw new IllegalArgumentException("end time must be after start time");
+    }
+
     @Scheduled(cron = "0 59 23 * * *") // fires 23:59 every day
     public void autoSkipUnfinishedTasks() {
         var today = LocalDate.now();
@@ -187,9 +193,21 @@ public class TaskServiceImpl implements TaskService {
         });
     }
 
-    // TODO(roadmap #6): only prints. Store nextFireAt on Alarm, fire when now >= nextFireAt, save, and
+    private static final LocalTime DEFAULT_DAY_START = LocalTime.of(8, 0);   // later: from the "Day starts" setting
 
-    // send through a NotificationSender interface (desktop tray now, phone later).
+    private void scheduleAlarm(Task task, Alarm alarm) {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDate day = task.getDate();
+
+        LocalDateTime begin = day.atTime(task.getStartTime() != null ? task.getStartTime() : DEFAULT_DAY_START);
+        LocalDateTime stop  = day.atTime(task.getEndTime()   != null ? task.getEndTime()   : LocalTime.MAX);
+
+        alarm.setStartAt(begin.isAfter(now) ? begin : now);
+        alarm.setStopAt(stop);
+        // first ping: at the start if it is still ahead, otherwise one interval from now
+        alarm.setNextFireAt(begin.isAfter(now) ? begin : now.plusMinutes(alarm.getIntervalMinutes()));
+        if (!stop.isAfter(now)) alarm.setActive(false);    // the task is already over
+    }
 
     @Scheduled(fixedDelay = 30_000)
     @Transactional
@@ -202,24 +220,38 @@ public class TaskServiceImpl implements TaskService {
 
             // alarm window is over
             if (!now.isBefore(alarm.getStopAt())) {
-                notifier.send(AlarmNotification.timesUp(task));
+                boolean fresh = Duration.between(alarm.getStopAt(), now).toMinutes() < 5;
+                if (task.getEndTime() != null && fresh) notifier.send(AlarmNotification.timesUp(task));
                 alarm.setActive(false);
                 continue;
             }
 
-            // not started yet (nextFireAt = startAt, so this is a safety net)
-            if (now.isBefore(alarm.getStartAt())) continue;
+            if (now.isBefore(alarm.getStartAt())) continue;      // not started yet (safety net)
 
-            // interval reminder
             if (!now.isBefore(alarm.getNextFireAt())) {
                 long left = Duration.between(now, alarm.getStopAt()).toMinutes();
-                notifier.send(AlarmNotification.reminder(task, left));
+                boolean startPing = alarm.getNextFireAt().equals(alarm.getStartAt());
+                notifier.send(startPing ? AlarmNotification.start(task, left) : AlarmNotification.reminder(task, left));
 
                 LocalDateTime next = alarm.getNextFireAt().plusMinutes(alarm.getIntervalMinutes());
-                while (!next.isAfter(now)) next = next.plusMinutes(alarm.getIntervalMinutes()); // skip missed ones
+                while (!next.isAfter(now)) next = next.plusMinutes(alarm.getIntervalMinutes());   // skip missed ones
                 alarm.setNextFireAt(next);
             }
         }
+    }
+
+    private void attachAlarm(Task task, AlarmRequest req) {
+        Alarm alarm = taskMapper.toAlarm(req);
+        if (alarm.getIntervalMinutes() < 1) throw new IllegalArgumentException("interval must be at least 1 minute");
+        alarm.setActive(true);
+        scheduleAlarm(task, alarm);
+        task.setAlarm(alarm);
+        task.setRecurring(true);
+    }
+
+    private Optional<WeekDay> findWeekDay(LocalDate date) {
+        return weekRepository.findByStartDateLessThanEqualAndEndDateGreaterThanEqual(date, date)
+                .flatMap(week -> weekDayRepository.findByWeeksAndDayOfWeek(week, date.getDayOfWeek()));
     }
 }
 

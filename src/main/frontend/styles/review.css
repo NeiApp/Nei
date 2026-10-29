@@ -1,0 +1,220 @@
+/* =========================================================
+   review.css — calm weekly/monthly spread.
+   Header -> pulse strip (ring + numbers) -> two-column split:
+     left  = Nei's read + Try next   (the story, widest)
+     right = chart + wins/watch      (the evidence)
+   Loaded AFTER base.css (inherited via MainLayout) and
+   components.css. Identity dot colours (good/warn) stay literal;
+   every surface/border/text uses tokens so dark/warm/daylight follow.
+   --p default silences the IDE "cannot resolve" warning (Java sets it inline).
+   Recolour/polish sits at the BOTTOM so it wins.
+   ========================================================= */
+
+/* ---- page ---- */
+.nei-review {
+    --p: 0;
+    max-width: 1040px;
+    margin: 0 auto;
+    padding: 28px 24px 56px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    background:
+            radial-gradient(70% 30% at 50% 0%,
+            color-mix(in srgb, var(--nei-accent) 9%, transparent) 0%,
+            transparent 70%),
+            var(--nei-bg);
+    min-height: 100%;
+    box-sizing: border-box;
+}
+
+/* ---- header ---- */
+.nei-review-head {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 14px;
+    flex-wrap: wrap;
+}
+.nei-review-titles { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.nei-review-head h1 {
+    margin: 0;
+    font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Times New Roman", serif;
+    font-size: 30px;
+    line-height: 1.1;
+    letter-spacing: -.01em;
+    color: var(--nei-text);
+}
+.nei-range { font-size: 13.5px; color: var(--nei-muted); }
+
+.nei-segs {
+    display: inline-flex;
+    gap: 4px;
+    padding: 4px;
+    border-radius: 12px;
+    border: 1px solid var(--nei-line);
+    background: color-mix(in srgb, var(--nei-text) 6%, var(--nei-surface));
+}
+.nei-seg {
+    margin: 0;
+    min-width: 78px;
+    padding: 7px 14px;
+    border: 0;
+    border-radius: 9px;
+    background: transparent;
+    color: var(--nei-muted);
+    font-size: 13px;
+    font-weight: 650;
+    cursor: pointer;
+    transition: background .14s ease, color .14s ease, box-shadow .14s ease;
+}
+.nei-seg:hover { color: var(--nei-text); background: var(--nei-hover); }
+.nei-seg.on {
+    background: var(--nei-surface);
+    color: var(--nei-text);
+    box-shadow: 0 1px 4px rgba(0,0,0,.10);
+}
+
+/* ---- pulse strip ---- */
+.nei-pulse {
+    display: flex;
+    align-items: center;
+    gap: 22px;
+    flex-wrap: wrap;
+    padding: 14px 18px;
+    border-radius: 16px;
+    border: 1px solid var(--nei-line);
+    background: var(--nei-surface);
+    box-shadow: 0 6px 18px rgba(40,50,30,.06);
+}
+.nei-pulse-facts {
+    display: flex;
+    align-items: center;
+    gap: 26px;
+    flex-wrap: wrap;
+}
+.nei-fact { display: flex; flex-direction: column; gap: 1px; min-width: 64px; }
+.nei-fact-label { font-size: 11px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--nei-muted); }
+.nei-fact-value { font-size: 18px; font-weight: 700; color: var(--nei-text); font-variant-numeric: tabular-nums; }
+
+/* ---- ring ---- */
+.nei-ring {
+    --p: 0;
+    flex: none;
+    width: 78px;
+    height: 78px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    position: relative;
+    background: conic-gradient(var(--nei-accent) calc(var(--p) * 1%), var(--nei-line) 0);
+}
+.nei-ring::before { content: ""; position: absolute; inset: 9px; border-radius: 50%; background: var(--nei-surface); }
+.nei-ring span { position: relative; font-size: 17px; font-weight: 700; color: var(--nei-text); font-variant-numeric: tabular-nums; }
+
+/* ---- split ---- */
+.nei-review-split {
+    display: grid;
+    grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr);
+    gap: 18px;
+    align-items: start;
+}
+.nei-review-story, .nei-review-data { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+
+/* ---- left: the read ---- */
+.nei-hero {
+    background: var(--nei-accent-soft);
+    border: 1px solid color-mix(in srgb, var(--nei-accent) 22%, var(--nei-line));
+    border-radius: 20px;
+    padding: 22px 24px;
+}
+.nei-summary-label {
+    font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Times New Roman", serif;
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: .02em;
+    color: var(--nei-accent-soft-text);
+    margin-bottom: 8px;
+}
+.nei-hero-text { font-size: 17px; line-height: 1.65; color: var(--nei-text); }
+.nei-signoff { margin-top: 14px; font-size: 12.5px; color: var(--nei-accent-soft-text); }
+
+.nei-try-next {
+    background: var(--nei-surface);
+    border: 1px solid var(--nei-line);
+    border-left: 3px solid var(--nei-accent);
+    border-radius: 14px;
+    padding: 14px 18px;
+}
+.nei-try-label { font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--nei-muted); }
+.nei-try-text { margin-top: 5px; font-size: 14.5px; line-height: 1.5; color: var(--nei-text); }
+
+/* ---- right: chart + lists ---- */
+.nei-review-chart {
+    background: var(--nei-surface);
+    border: 1px solid var(--nei-line);
+    border-radius: 18px;
+    padding: 18px 18px 14px;
+}
+.nei-data-title { margin: 0 0 14px; font-size: 14px; font-weight: 700; color: var(--nei-text); }
+
+.nei-bars { display: flex; align-items: flex-end; gap: 12px; height: 150px; }
+.nei-bar-col { flex: 1; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; gap: 6px; font-size: 12px; color: var(--nei-muted); }
+.nei-bar { width: 100%; max-width: 40px; min-height: 4px; background: var(--nei-line); border-radius: 8px; transition: height .4s ease; }
+.nei-bar.top { background: var(--nei-accent); }
+.nei-bar-n { color: var(--nei-text); font-weight: 650; font-variant-numeric: tabular-nums; }
+
+.nei-review-lists { display: flex; flex-direction: column; gap: 14px; }
+.nei-list-block {
+    background: var(--nei-surface);
+    border: 1px solid var(--nei-line);
+    border-radius: 16px;
+    padding: 14px 16px 6px;
+}
+.nei-list-title { margin: 0 0 4px; font-size: 13px; font-weight: 700; color: var(--nei-text); }
+.nei-review-item {
+    position: relative;
+    padding: 8px 0 8px 16px;
+    border-top: 1px solid var(--nei-line);
+    font-size: 13.5px;
+    line-height: 1.45;
+    color: var(--nei-text);
+}
+.nei-review-item:first-of-type { border-top: 0; }
+.nei-review-item::before {
+    content: "";
+    position: absolute;
+    left: 2px; top: 13px;
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--nei-muted);
+}
+.nei-review-item.good::before { background: #8bd17c; }
+.nei-review-item.warn::before { background: #ef8f6a; }
+.nei-review-item.muted { color: var(--nei-muted); }
+.nei-review-item.muted::before { display: none; }
+
+/* ---- responsive ---- */
+@media (max-width: 900px) {
+    .nei-review-split { grid-template-columns: 1fr; }
+    .nei-pulse { gap: 16px; }
+    .nei-pulse-facts { gap: 18px; }
+}
+@media (max-width: 560px) {
+    .nei-review { padding: 20px 14px 44px; }
+    .nei-review-head h1 { font-size: 25px; }
+    .nei-bars { height: 120px; gap: 8px; }
+}
+
+/* ---- dark / warm polish (BOTTOM so it wins) ---- */
+.theme-dark .nei-pulse,
+.theme-dark .nei-review-chart,
+.theme-dark .nei-list-block,
+.theme-dark .nei-try-next { box-shadow: 0 8px 22px rgba(0,0,0,.4); }
+.theme-dark .nei-seg.on { box-shadow: 0 1px 4px rgba(0,0,0,.5); }
+.theme-dark .nei-hero {
+    background: color-mix(in srgb, var(--nei-accent) 14%, var(--nei-surface));
+    border-color: color-mix(in srgb, var(--nei-accent) 26%, var(--nei-line));
+}
+.theme-warm .nei-hero { border-color: color-mix(in srgb, var(--nei-accent) 30%, var(--nei-line)); }
+/* identity dot colours (good/warn) intentionally stay literal across themes */

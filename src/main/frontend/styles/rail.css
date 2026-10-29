@@ -1,0 +1,115 @@
+/* =========================================================
+   DOCK RAIL — floating accent capsule (theme-aware).
+   Self-contained: carries its own per-theme surface/shadow,
+   so it works whether you paste it at the END of base.css
+   (monolith) or use it to REPLACE rail.css (split).
+   No Java changes. No new tokens. Neutralises the old
+   edge-bar + grey hover automatically.
+   ========================================================= */
+
+/* --- the capsule itself: lifted off the shell on 3 sides --- */
+.nei-rail{
+    width:64px;
+    margin:14px 12px 14px 10px;          /* top / right-gutter / bottom / left(near-flush) */
+    padding:12px 0;
+    border-radius:22px;
+    border:1px solid #ececec;
+    background:#ffffff;                  /* Daylight: elevated above the sage shell */
+    box-shadow:0 8px 26px rgba(30,40,25,.10), 0 2px 6px rgba(0,0,0,.05);
+    display:flex; flex-direction:column; align-items:center;
+    justify-content:flex-start; gap:8px;
+    flex-shrink:0;
+}
+/* Midnight: raised charcoal floating on near-black */
+.theme-dark .nei-rail{
+    background:#1d1d22; border-color:#2c2c33;
+    box-shadow:0 10px 34px rgba(0,0,0,.6), 0 2px 8px rgba(0,0,0,.45);
+}
+/* Amber: warm ivory floating on cream */
+.theme-warm .nei-rail{
+    background:#fffdf5; border-color:#efe3c4;
+    box-shadow:0 8px 26px rgba(120,85,20,.16), 0 2px 6px rgba(120,85,20,.08);
+}
+
+/* pin the bottom group to the foot of the capsule */
+.nei-rail .nei-rail-group{ display:flex; flex-direction:column; align-items:center; gap:8px; }
+.nei-rail .nei-rail-group:last-of-type{
+    margin-top:auto;
+    padding-top:10px;
+    border-top:1px solid color-mix(in srgb, var(--nei-text) 10%, transparent);
+}
+
+/* --- brand tile: the CAT, on a pale-gold chip (was the "N") ---
+   The cat is a white-bg line-art PNG, so it can't be a mask and can't
+   sit on a solid colour directly (the white would show as a square).
+   Trick: the chip's own fill is accent-soft; the cat lives on ::before
+   with mix-blend-mode, so the PNG's white margin *becomes* the chip
+   colour and only the black lines survive. isolation:isolate keeps the
+   blend confined to the chip (not the rail behind it), so the gold
+   border + glow stay crisp. Dark mode inverts to white lines on the
+   chip. Same mechanism as the welcome hero, scaled to an icon. */
+.nei-rail-brand{
+    position:relative; isolation:isolate;
+    width:44px; height:44px; border-radius:14px; flex:none; margin-bottom:2px;
+    background:var(--nei-accent-soft);
+    border:1px solid color-mix(in srgb, var(--nei-accent) 45%, transparent);
+    box-shadow:0 4px 14px color-mix(in srgb, var(--nei-accent) 32%, transparent);
+}
+.nei-rail-brand span{ display:none; }                 /* hide the "N" */
+.nei-rail-brand::before{
+    content:''; position:absolute; inset:0; border-radius:inherit;
+    background:url('../images/cat.png') center / contain no-repeat;
+    mix-blend-mode:multiply;                          /* light/warm: black cat on the chip */
+}
+.theme-dark .nei-rail-brand::before{
+    filter:invert(1);                                 /* black->white lines, white->black bg */
+    mix-blend-mode:screen;                            /* drop the (now black) bg on the chip */
+}
+
+/* --- icon slots: clean circles, Lumo bleed reset --- */
+.nei-rail-btn{
+    width:44px; height:44px; min-width:0; margin:0; padding:0;
+    border:0; box-shadow:none; background:transparent;
+    border-radius:50%; color:var(--nei-muted);
+    display:grid; place-items:center; cursor:pointer;
+    transition:background .16s ease, color .16s ease, transform .14s ease, box-shadow .16s ease;
+}
+.nei-rail-btn vaadin-icon{ width:20px; height:20px; color:inherit; transition:color .16s ease; }
+
+/* hover = accent wash + lift (NOT a grey box) */
+.nei-rail-btn:hover{
+    background:color-mix(in srgb, var(--nei-accent) 13%, transparent);
+    color:var(--nei-text); transform:scale(1.05);
+}
+
+/* active = filled accent orb that glows in your accent */
+.nei-rail-btn.active{
+    background:var(--nei-accent); color:var(--nei-accent-text);
+    transform:scale(1.06);
+    box-shadow:0 6px 18px color-mix(in srgb, var(--nei-accent) 50%, transparent);
+}
+.nei-rail-btn.active vaadin-icon{ color:var(--nei-accent-text); }
+
+/* kill the old left edge-bar (the orb replaces it) */
+.nei-rail-btn.active::before{ content:none; }
+
+/* calm mode: no hover lift */
+.nei-reduce-motion .nei-rail-btn:hover{ transform:none; }
+
+/* transparent / glass mode: the capsule goes frosted */
+.sidebar-transparent .nei-rail{
+    background:color-mix(in srgb, var(--nei-surface) 52%, transparent);
+    border-color:color-mix(in srgb, var(--nei-text) 8%, transparent);
+    backdrop-filter:blur(18px) saturate(1.4); -webkit-backdrop-filter:blur(18px) saturate(1.4);
+}
+.sidebar-transparent .nei-rail-brand{
+    background:color-mix(in srgb, var(--nei-accent-soft) 65%, transparent);
+    backdrop-filter:blur(10px) saturate(1.2); -webkit-backdrop-filter:blur(10px) saturate(1.2);
+}
+
+/* ===== keep every tile inside the rounded capsule ===== */
+.nei-rail{ overflow-y:auto; overflow-x:hidden; scrollbar-width:none; }   /* invisible scroll guard */
+.nei-rail::-webkit-scrollbar{ width:0; height:0; }
+.nei-rail{ padding:12px 0 18px; gap:6px; }                               /* more bottom room, tighter stack */
+.nei-rail .nei-rail-group{ gap:6px; }
+.nei-rail .nei-rail-brand{ margin-bottom:0; }

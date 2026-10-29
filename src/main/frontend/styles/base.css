@@ -1,0 +1,237 @@
+/* =========================================================
+   base.css — GLOBALS ONLY.
+   One job: tokens, shell, global primitives/modifiers, theme blocks,
+   cross-view CONSTANT policies, orphan projects/reports, and the
+   global FIELD policy. View layout lives in its own slice
+   (rail/welcome/today/calendar/notes/schedule/review/settings); shared
+   widgets live in components.css. NEVER paste another stylesheet into
+   this file — that is exactly how the old white layouts and the gold
+   field highlight kept bleeding back onto every screen.
+
+   THEME BLOCKS USE html. PREFIX ON PURPOSE: html.theme-dark is
+   (0,1,1), which beats any stray :root (0,1,0) no matter the load
+   order. Do not "simplify" these back to .theme-dark.
+   ========================================================= */
+
+/* ---------- base tokens (light = default) + derived tints ---------- */
+:root {
+    color-scheme: light;
+    --nei-bg: #eef1ec;
+    --nei-surface: #fafafa;
+    --nei-panel: #f3f3f3;
+    --nei-line: #e4e4e4;
+    --nei-text: #1d1d1f;
+    --nei-muted: #8a8a8e;
+    --nei-accent: #f7c531;
+    --nei-accent-text: #1d1d1f;
+    font-family: "Inter", "Segoe UI", system-ui, sans-serif;
+
+    --nei-hover:            color-mix(in srgb, var(--nei-text) 6%,  var(--nei-surface));
+    --nei-active:           color-mix(in srgb, var(--nei-text) 10%, var(--nei-surface));
+    --nei-selected:         color-mix(in srgb, var(--nei-accent) 14%, var(--nei-surface));
+    --nei-accent-soft:      color-mix(in srgb, var(--nei-accent) 16%, var(--nei-surface));
+    --nei-accent-soft-text: color-mix(in srgb, var(--nei-accent) 50%, var(--nei-text));
+}
+
+html, body { margin: 0; height: 100%; background: var(--nei-bg); color: var(--nei-text); }
+.grow { flex: 1; min-width: 0; }
+.nei-app { display: flex; flex-direction: column; height: 100vh; background: var(--nei-bg); }
+.nei-content { flex: 1; min-width: 0; overflow: auto; background: var(--nei-bg); }
+
+/* ---------- global PRIMITIVES (color/shape by meaning) ---------- */
+.nei-btn-ghost { background: #fff; border: 1px solid var(--nei-line); border-radius: 8px; cursor: pointer; }
+.nei-btn-primary { background: var(--nei-accent) !important; color: var(--nei-accent-text) !important; font-weight: 700; border-radius: 8px; cursor: pointer; }
+.nei-empty { color: var(--nei-muted); padding: 24px 0; }
+.nei-warn { background: #fde9e1; color: #8a3a1c; border-radius: 10px; padding: 8px 12px; font-size: 13px; margin-top: 10px; }
+.nei-danger { background: #fde4e1 !important; color: #b3261e !important; }
+
+/* ---------- global MODIFIER (toggled on <html> by Appearance.java) ---------- */
+.nei-reduce-motion *, .nei-reduce-motion *::before { animation: none !important; transition: none !important; }
+
+/* ---- projects (ORPHAN — no Java view yet; build+slice or delete) ---- */
+.nei-projects { max-width: 720px; margin: 0 auto; padding: 32px 24px; }
+.nei-projects-head { display: flex; align-items: center; gap: 16px; }
+.nei-projects-head h1 { margin: 0; font-size: 44px; letter-spacing: 0.02em; }
+.nei-folder-tile { width: 56px; height: 56px; border-radius: 16px; background: #fff; border: 1px solid var(--nei-line); display: grid; place-items: center; }
+.nei-tagline { color: #555; margin: 20px 0 14px; }
+.nei-pill-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 18px; }
+.nei-pill { background: #efefef; border-radius: 20px; font-size: 12px; cursor: pointer; margin: 0; }
+.nei-area-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; align-items: start; }
+.nei-col { display: flex; flex-direction: column; gap: 12px; }
+.nei-area-card { border: 1px solid var(--nei-line); border-radius: 20px; padding: 14px 16px 16px; background: #fff; }
+.nei-area-title { display: flex; gap: 8px; align-items: center; font-size: 17px; text-transform: uppercase; margin-bottom: 10px; }
+.nei-item { display: flex; gap: 10px; padding: 8px 0 8px 10px; font-size: 14px; }
+.nei-step { display: flex; gap: 8px; align-items: center; padding: 4px 0 4px 38px; font-size: 12px; }
+.nei-box { width: 12px; height: 12px; border-radius: 3px; }
+.nei-box.on { background: #8fd3f4; } .nei-box.off { background: #d4d4d4; }
+
+/* ---- reports (ORPHAN remainder) ---- */
+.nei-report { max-width: 760px; margin: 0 auto; padding: 32px 24px; }
+.nei-report h1 { margin: 0 0 16px; font-size: 36px; }
+.nei-controls { display: flex; gap: 12px; align-items: flex-end; margin-bottom: 20px; }
+.nei-stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin: 16px 0; }
+.nei-stat { background: var(--nei-panel); border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 4px; }
+.nei-stat-num { font-size: 28px; font-weight: 700; }
+.nei-stat-label { font-size: 13px; color: var(--nei-muted); }
+.nei-summary { background: #fbf4d6; border-radius: 16px; padding: 20px; margin-top: 8px; }
+.nei-summary-text { line-height: 1.6; }
+
+/* ---- desktop feel (global shell policy) ---- */
+html, body { overflow: auto; overscroll-behavior: none; -webkit-font-smoothing: antialiased;
+    font-family: "Segoe UI Variable", "Segoe UI", system-ui, -apple-system, sans-serif; }
+.nei-app, .nei-welcome { user-select: none; -webkit-user-select: none; cursor: default; min-width: 920px; min-height: 580px; }
+.nei-app input, .nei-app textarea, .nei-welcome input, .nei-note-text, .nei-hero-text, .nei-summary-text, .nei-note { user-select: text; -webkit-user-select: text; }
+.nei-body { display: flex; flex: 1; min-height: 0; }
+.nei-content { min-height: 0; }
+.nei-statusbar { height: 26px; flex: none; display: flex; align-items: center; gap: 18px; padding: 0 14px; font-size: 12px; color: #6b6b70;
+    background: #f3f4f1; border-top: 1px solid var(--nei-line); }
+.nei-status-item { display: inline-flex; align-items: center; }
+.nei-status-dot { width: 8px; height: 8px; border-radius: 50%; background: #5cb85c; display: inline-block; margin-right: 6px; }
+.nei-status-grow { flex: 1; }
+
+/* NEUTRAL keyboard ring — for buttons / swatches / theme cards / links ONLY.
+   This is NOT a field border: the FIELD policy at the bottom of this file
+   overrides it with outline:none !important on every text field, so a field
+   never shows a stroke of any color. The grey ring exists so a Tab user can
+   still see which control is focused. It is deliberately not the accent. */
+:focus-visible { outline: 2px solid color-mix(in srgb, var(--nei-text) 32%, transparent); outline-offset: 2px; }
+
+* { scrollbar-width: thin; scrollbar-color: #cfcfcf transparent; }
+*::-webkit-scrollbar { width: 10px; height: 10px; }
+*::-webkit-scrollbar-thumb { background: #cfcfcf; border-radius: 10px; border: 3px solid transparent; background-clip: content-box; }
+.nei-content > * { animation: nei-fade .16s ease-out; }
+@keyframes nei-fade { from { opacity: 0; transform: translateY(4px); } }
+@media (prefers-reduced-motion: reduce) { .nei-content > * { animation: none; } }
+
+/* =========================================================
+   THEME SYSTEM  (html. prefix = beats any stray :root)
+   ========================================================= */
+html.theme-dark {
+    color-scheme: dark;
+    --nei-bg:#0e0e10; --nei-surface:#17171a; --nei-panel:#1f1f23; --nei-line:#2c2c31;
+    --nei-text:#f4f4f5; --nei-muted:#8b8b92;
+    --lumo-base-color:#17171a; --lumo-body-text-color:#f4f4f5; --lumo-secondary-text-color:#a1a1a8;
+    --lumo-tertiary-text-color:#6e6e75; --lumo-disabled-text-color:rgba(255,255,255,.3);
+    --lumo-contrast-5pct:rgba(255,255,255,.05); --lumo-contrast-10pct:rgba(255,255,255,.10);
+    --lumo-contrast-20pct:rgba(255,255,255,.20); --lumo-contrast-30pct:rgba(255,255,255,.30);
+    --lumo-contrast-40pct:rgba(255,255,255,.40); --lumo-contrast-50pct:rgba(255,255,255,.50);
+    --lumo-contrast-60pct:rgba(255,255,255,.60); --lumo-contrast-70pct:rgba(255,255,255,.70);
+    --lumo-contrast-80pct:rgba(255,255,255,.80); --lumo-contrast-90pct:rgba(255,255,255,.90);
+    --lumo-primary-color:var(--nei-accent); --lumo-primary-text-color:var(--nei-accent);
+    --lumo-primary-contrast-color:#000;
+    --lumo-error-color:#ff6961; --lumo-error-text-color:#ff8a80;
+    --lumo-success-color:#68d391; --lumo-success-text-color:#9ae6b4;
+}
+html.theme-warm {
+    color-scheme: light;
+    --nei-bg:#fbf3da; --nei-surface:#fff8e7; --nei-panel:#f6ead0; --nei-line:#e7d4a6;
+    --nei-text:#3e2c12; --nei-muted:#8a6d3f;
+    --lumo-base-color:#fff8e7; --lumo-body-text-color:#3e2c12; --lumo-secondary-text-color:#6b5230;
+    --lumo-primary-color:var(--nei-accent); --lumo-primary-text-color:var(--nei-accent);
+    --lumo-primary-contrast-color:#3e2c12;
+}
+
+/* ---------- recolour — ONLY what still lives in base ---------- */
+.nei-btn-ghost{background:var(--nei-surface)}
+.nei-tagline{color:var(--nei-muted)} .nei-pill{background:var(--nei-panel)}
+.nei-area-card,.nei-folder-tile{background:var(--nei-surface)}
+.nei-box.off{background:var(--nei-line)}
+.nei-summary{background:var(--nei-accent-soft)}
+.nei-statusbar{background:var(--nei-panel);color:var(--nei-muted)}
+*::-webkit-scrollbar-thumb{background:var(--nei-line)}
+/* cross-view CONSTANT policy — stays whole, names moved selectors on purpose */
+.nei-note-card,.nei-note-chip,.nei-cal-chip,.nei-tag{color:#1d1d1f}
+
+/* ---------- frosted sidebar — SHELL halves only (rail halves in rail.css) ---------- */
+.sidebar-transparent .nei-app{background:transparent}
+.sidebar-transparent .nei-statusbar{
+    background:color-mix(in srgb, var(--nei-panel) 70%, transparent);
+    backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); border-top-color:transparent;
+}
+
+/* =========================================================
+   GLOBAL FIELD POLICY — fields are FLAT. No border, no underline,
+   no ring, no accent — at rest AND focused, in every theme.
+   Every value below is 0 / none / transparent; the accent token
+   cannot reach a field in any state. The only thing a field shows
+   is its soft FILL (--vaadin-input-field-background, set per view),
+   which is a background, not a stroke.
+   !important is REQUIRED, not laziness: Lumo paints the focused
+   field's underline+ring via :host([focused]) [part="input-field"]
+   (0,3,0), which outranks any normal external ::part rule, and the
+   universal :focus-visible above would otherwise stroke a field on
+   click. Checkboxes / radios / switches are deliberately NOT listed,
+   so their accent fill survives.
+   ========================================================= */
+
+/* 1. kill Lumo's border/underline/ring at the variable level (host) */
+vaadin-text-field,
+vaadin-text-area,
+vaadin-integer-field,
+vaadin-time-picker,
+vaadin-date-picker,
+vaadin-select,
+vaadin-combo-box {
+    --vaadin-input-field-border-width: 0 !important;
+    --vaadin-input-field-border-color: transparent !important;
+    --vaadin-input-field-highlight-background: transparent !important;
+    --vaadin-input-field-focus-ring: none !important;
+    --lumo-body-text-color: var(--nei-text);
+}
+
+/* 2. kill the painted stroke/underline/ring on the part, idle + focused */
+vaadin-text-field::part(input-field),
+vaadin-text-area::part(input-field),
+vaadin-integer-field::part(input-field),
+vaadin-time-picker::part(input-field),
+vaadin-date-picker::part(input-field),
+vaadin-select::part(input-field),
+vaadin-combo-box::part(input-field),
+vaadin-text-field::part(input-field):focus-within,
+vaadin-text-area::part(input-field):focus-within,
+vaadin-integer-field::part(input-field):focus-within,
+vaadin-time-picker::part(input-field):focus-within,
+vaadin-date-picker::part(input-field):focus-within,
+vaadin-select::part(input-field):focus-within,
+vaadin-combo-box::part(input-field):focus-within {
+    border: 0 !important;
+    outline: none !important;
+    box-shadow: none !important;   /* this is Lumo's underline + focus ring */
+    /* OPTIONAL faint hairline instead of fully flat — uncomment ONE line and
+       it stays neutral in every theme (never the accent). Leave commented for
+       the flat look you asked for. */
+    /* border: 1px solid var(--nei-line) !important; */
+}
+
+/* 3. host-level guards so :focus-visible / :focus-within can't re-stroke a field */
+vaadin-text-field:focus-visible,
+vaadin-text-area:focus-visible,
+vaadin-integer-field:focus-visible,
+vaadin-time-picker:focus-visible,
+vaadin-date-picker:focus-visible,
+vaadin-select:focus-visible,
+vaadin-combo-box:focus-visible,
+vaadin-text-field:focus-within,
+vaadin-text-area:focus-within,
+vaadin-integer-field:focus-within,
+vaadin-time-picker:focus-within,
+vaadin-date-picker:focus-within,
+vaadin-select:focus-within,
+vaadin-combo-box:focus-within {
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+/* =========================================================
+   base.css ENDS HERE.
+   If you are reading a "NEI — full stylesheet", a ".nei-settings",
+   or a ".nei-cdot / .nei-card" widget block BELOW this line, it was
+   pasted in by mistake and MUST be deleted — those styles belong in
+   settings.css / components.css / the view slices and are loaded via
+   @CssImport. Keeping them here re-contaminates every screen (this is
+   literally how the gold field highlight and the old white layouts
+   kept returning). Migration of live views is COMPLETE; only the
+   ORPHAN projects / reports blocks above remain un-sliced (no Java
+   view references them) — decide per block: build the view + slice it,
+   or delete the block.
+   ========================================================= */

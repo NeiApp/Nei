@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @RequiredArgsConstructor
@@ -27,6 +28,11 @@ public class WeekService {
     private  final WeekDayRepository weekDayRepository;
 
     private final WeeklyReviewRepository weeklyReviewRepository;
+
+    public Optional<WeekDay> findWeekDay(LocalDate date) {
+        return weekRepository.findByStartDateLessThanEqualAndEndDateGreaterThanEqual(date, date)
+                .flatMap(week -> weekDayRepository.findByWeeksAndDayOfWeek(week, date.getDayOfWeek()));
+    }
 
     @Transactional
     void startNewWeek() {

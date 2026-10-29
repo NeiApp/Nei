@@ -1,12 +1,8 @@
 package com.projectii.Nei.controller;
 
-import com.projectii.Nei.payload.request.AddNoteRequest;
-import com.projectii.Nei.payload.request.AlarmRequest;
-import com.projectii.Nei.payload.request.CreateATask;
-import com.projectii.Nei.payload.request.SubTaskRequest;
+import com.projectii.Nei.payload.request.*;
 import com.projectii.Nei.payload.response.AlarmResponse;
 import com.projectii.Nei.payload.response.CreatedTask;
-import com.projectii.Nei.payload.response.SubTaskResponse;
 import com.projectii.Nei.service.TaskService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -76,6 +72,16 @@ public class TaskController {
         return new ResponseEntity<>(alarmResponse, HttpStatus.CREATED);
     }
 
+    @PatchMapping("/{id}")
+    public ResponseEntity<CreatedTask> updateTask(@PathVariable  UUID id,  @RequestBody UpdateTask req){
+        return ResponseEntity.ok(taskService.updateTask(id,req));
+    }
+
+    @PatchMapping("/{id}/status")
+    public ResponseEntity<Void> status(@PathVariable UUID id, @RequestBody StatusRequest statusRequest){
+        taskService.updateStatus(id,statusRequest);
+        return ResponseEntity.ok().build();
+    }
 
     @DeleteMapping("/{id}/delete")
     public ResponseEntity<?> deleteATask(@PathVariable UUID id){

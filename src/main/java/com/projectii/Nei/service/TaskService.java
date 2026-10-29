@@ -1,8 +1,6 @@
 package com.projectii.Nei.service;
 
-import com.projectii.Nei.payload.request.AlarmRequest;
-import com.projectii.Nei.payload.request.CreateATask;
-import com.projectii.Nei.payload.request.SubTaskRequest;
+import com.projectii.Nei.payload.request.*;
 import com.projectii.Nei.payload.response.AlarmResponse;
 import com.projectii.Nei.payload.response.CreatedTask;
 import com.projectii.Nei.payload.response.SubTaskResponse;
@@ -27,4 +25,8 @@ public interface TaskService {
     void deleteTask(UUID id);
 
     CreatedTask addSubTasks(UUID taskId, List<SubTaskRequest> subTaskRequest);
+
+    CreatedTask updateTask(UUID id, UpdateTask req);
+
+    void updateStatus(UUID id, StatusRequest statusRequest);
 }

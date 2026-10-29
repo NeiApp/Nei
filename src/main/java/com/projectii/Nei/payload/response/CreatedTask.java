@@ -1,5 +1,6 @@
 package com.projectii.Nei.payload.response;
 
+import com.projectii.Nei.enums.TaskCategory;
 import com.projectii.Nei.payload.request.AlarmRequest;
 
 
@@ -15,5 +16,6 @@ public record CreatedTask(
         String status,
         String note,
         AlarmRequest alarm,
+        TaskCategory taskCategory,
         List<SubTaskResponse> subTask
 ) {}

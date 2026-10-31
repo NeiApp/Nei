@@ -3,7 +3,7 @@ package com.projectii.Nei.ui.app;
 import com.projectii.Nei.service.serviceImpl.AlarmBroadcaster;
 import com.projectii.Nei.ui.service.SettingsUiService;
 import com.projectii.Nei.ui.shared.Appearance;
-import com.projectii.Nei.ui.welcome.WelcomeView;
+import com.projectii.Nei.ui.welcome.WelcomeView;   // << ADDED: type-safe forward target
 import com.vaadin.flow.component.*;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dependency.CssImport;
@@ -29,7 +29,8 @@ import java.util.Map;
  * The window frame: icon rail on the left, the current page on the right, a status bar at the bottom.
  * Alt+1 ... Alt+6 jump between pages.
  */
-@CssImport("./styles/nei.css")
+@CssImport("./styles/base.css")
+@CssImport("./styles/rail.css")
 public class MainLayout extends Div implements RouterLayout, BeforeEnterObserver, AfterNavigationObserver {
 
     private final SettingsUiService settings;
@@ -46,6 +47,12 @@ public class MainLayout extends Div implements RouterLayout, BeforeEnterObserver
 
         Div rail = new Div();
         rail.addClassName("nei-rail");
+
+        // brand tile — recolours with the accent, ties the rail to the welcome mark
+        Div brand = new Div(new Span("N"));
+        brand.addClassName("nei-rail-brand");
+        brand.getElement().setAttribute("title", "Nei");
+
         Div top = new Div(
                 railBtn(VaadinIcon.COFFEE, "Focus", null),
                 railBtn(VaadinIcon.LIST_UL, "Today (Alt+1)", "today"),
@@ -60,7 +67,7 @@ public class MainLayout extends Div implements RouterLayout, BeforeEnterObserver
                 railBtn(VaadinIcon.COG_O, "Settings (Alt+6)", "settings"));
         top.addClassName("nei-rail-group");
         bottom.addClassName("nei-rail-group");
-        rail.add(top, bottom);
+        rail.add(brand, top, bottom);
 
         content.addClassName("nei-content");
         Div body = new Div(rail, content);
@@ -119,7 +126,7 @@ public class MainLayout extends Div implements RouterLayout, BeforeEnterObserver
     /** Nobody gets past the welcome screen without a name. */
     @Override
     public void beforeEnter(BeforeEnterEvent event) {
-        if (settings.account().userName == null) event.forwardTo(WelcomeView.class);
+        if (settings.account().userName == null) event.forwardTo(WelcomeView.class);   // << CHANGED: was forwardTo("welcome")
     }
 
     @Override
@@ -129,8 +136,6 @@ public class MainLayout extends Div implements RouterLayout, BeforeEnterObserver
             if (route.equals(current)) b.addClassName("active"); else b.removeClassName("active");
         });
     }
-
-
 
     @Override
     protected void onAttach(AttachEvent e) {

@@ -1,0 +1,587 @@
+/* =========================================================
+   base.css — GLOBALS ONLY.
+   Tokens, shell, global primitives/modifiers, theme blocks,
+   cross-view constant policies, orphan projects/reports, and
+   global borderless field policy. View layout lives in its own
+   stylesheet; shared widgets live in components.css.
+   ========================================================= */
+
+/* ---------- base tokens (light = default) + derived tints ---------- */
+:root {
+    color-scheme: light;
+    --nei-bg: #eef1ec;
+    --nei-surface: #fafafa;
+    --nei-panel: #f3f3f3;
+    --nei-line: #e4e4e4;
+    --nei-text: #1d1d1f;
+    --nei-muted: #8a8a8e;
+    --nei-accent: #f7c531;
+    --nei-accent-text: #1d1d1f;
+    font-family: "Inter", "Segoe UI", system-ui, sans-serif;
+
+    --nei-hover: color-mix(in srgb, var(--nei-text) 6%, var(--nei-surface));
+    --nei-active: color-mix(in srgb, var(--nei-text) 10%, var(--nei-surface));
+    --nei-selected: color-mix(in srgb, var(--nei-accent) 14%, var(--nei-surface));
+    --nei-accent-soft: color-mix(in srgb, var(--nei-accent) 16%, var(--nei-surface));
+    --nei-accent-soft-text: color-mix(in srgb, var(--nei-accent) 50%, var(--nei-text));
+}
+
+html,
+body {
+    margin: 0;
+    height: 100%;
+    overflow: auto;
+    overscroll-behavior: none;
+    -webkit-font-smoothing: antialiased;
+    font-family: "Segoe UI Variable", "Segoe UI", system-ui, -apple-system, sans-serif;
+    background: var(--nei-bg);
+    color: var(--nei-text);
+}
+
+.grow {
+    flex: 1;
+    min-width: 0;
+}
+
+.nei-app {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    min-width: 920px;
+    min-height: 580px;
+    background: var(--nei-bg);
+    user-select: none;
+    -webkit-user-select: none;
+    cursor: default;
+}
+
+.nei-content {
+    flex: 1;
+    min-width: 0;
+    min-height: 0;
+    overflow: auto;
+    background: var(--nei-bg);
+}
+
+.nei-body {
+    display: flex;
+    flex: 1;
+    min-height: 0;
+}
+
+/* Text selection stays enabled in editable/readable content. */
+.nei-app input,
+.nei-app textarea,
+.nei-note-text,
+.nei-hero-text,
+.nei-summary-text,
+.nei-note {
+    user-select: text;
+    -webkit-user-select: text;
+}
+
+.nei-welcome {
+    min-width: 920px;
+    min-height: 580px;
+    user-select: none;
+    -webkit-user-select: none;
+    cursor: default;
+}
+
+.nei-welcome input,
+.nei-welcome textarea {
+    user-select: text;
+    -webkit-user-select: text;
+}
+
+/* ---------- global primitives (color/shape by meaning) ---------- */
+.nei-btn-ghost {
+    background: #fff;
+    border: 1px solid var(--nei-line);
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.nei-btn-primary {
+    background: var(--nei-accent) !important;
+    color: var(--nei-accent-text) !important;
+    font-weight: 700;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.nei-empty {
+    color: var(--nei-muted);
+    padding: 24px 0;
+}
+
+.nei-warn {
+    background: #fde9e1;
+    color: #8a3a1c;
+    border-radius: 10px;
+    padding: 8px 12px;
+    font-size: 13px;
+    margin-top: 10px;
+}
+
+.nei-danger {
+    background: #fde4e1 !important;
+    color: #b3261e !important;
+}
+
+/* Global reduced-motion modifier, toggled on <html> by Appearance.java. */
+.nei-reduce-motion *,
+.nei-reduce-motion *::before {
+    animation: none !important;
+    transition: none !important;
+}
+
+/* ---------- projects (orphan: no Java view currently references these) ---------- */
+.nei-projects {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 32px 24px;
+}
+
+.nei-projects-head {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.nei-projects-head h1 {
+    margin: 0;
+    font-size: 44px;
+    letter-spacing: 0.02em;
+}
+
+.nei-folder-tile {
+    width: 56px;
+    height: 56px;
+    border-radius: 16px;
+    background: #fff;
+    border: 1px solid var(--nei-line);
+    display: grid;
+    place-items: center;
+}
+
+.nei-tagline {
+    color: #555;
+    margin: 20px 0 14px;
+}
+
+.nei-pill-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 18px;
+}
+
+.nei-pill {
+    background: #efefef;
+    border-radius: 20px;
+    font-size: 12px;
+    cursor: pointer;
+    margin: 0;
+}
+
+.nei-area-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    align-items: start;
+}
+
+.nei-col {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.nei-area-card {
+    border: 1px solid var(--nei-line);
+    border-radius: 20px;
+    padding: 14px 16px 16px;
+    background: #fff;
+}
+
+.nei-area-title {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    font-size: 17px;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+}
+
+.nei-item {
+    display: flex;
+    gap: 10px;
+    padding: 8px 0 8px 10px;
+    font-size: 14px;
+}
+
+.nei-step {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    padding: 4px 0 4px 38px;
+    font-size: 12px;
+}
+
+.nei-box {
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+}
+
+.nei-box.on {
+    background: #8fd3f4;
+}
+
+.nei-box.off {
+    background: #d4d4d4;
+}
+
+/* ---------- reports (orphan: no Java view currently references these) ---------- */
+.nei-report {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 32px 24px;
+}
+
+.nei-report h1 {
+    margin: 0 0 16px;
+    font-size: 36px;
+}
+
+.nei-controls {
+    display: flex;
+    gap: 12px;
+    align-items: flex-end;
+    margin-bottom: 20px;
+}
+
+.nei-stat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 12px;
+    margin: 16px 0;
+}
+
+.nei-stat {
+    background: var(--nei-panel);
+    border-radius: 16px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.nei-stat-num {
+    font-size: 28px;
+    font-weight: 700;
+}
+
+.nei-stat-label {
+    font-size: 13px;
+    color: var(--nei-muted);
+}
+
+.nei-summary {
+    background: #fbf4d6;
+    border-radius: 16px;
+    padding: 20px;
+    margin-top: 8px;
+}
+
+.nei-summary-text {
+    line-height: 1.6;
+}
+
+/* ---------- status bar ---------- */
+.nei-statusbar {
+    height: 26px;
+    flex: none;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    padding: 0 14px;
+    font-size: 12px;
+    color: #6b6b70;
+    background: #f3f4f1;
+    border-top: 1px solid var(--nei-line);
+}
+
+.nei-status-item {
+    display: inline-flex;
+    align-items: center;
+}
+
+.nei-status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #5cb85c;
+    display: inline-block;
+    margin-right: 6px;
+}
+
+.nei-status-grow {
+    flex: 1;
+}
+
+/* Neutral keyboard focus ring for controls. */
+:focus-visible {
+    outline: 2px solid color-mix(in srgb, var(--nei-text) 32%, transparent);
+    outline-offset: 2px;
+}
+
+/* Scrollbars */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: #cfcfcf transparent;
+}
+
+*::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+*::-webkit-scrollbar-thumb {
+    background: #cfcfcf;
+    border-radius: 10px;
+    border: 3px solid transparent;
+    background-clip: content-box;
+}
+
+.nei-content > * {
+    animation: nei-fade 0.16s ease-out;
+}
+
+@keyframes nei-fade {
+    from {
+        opacity: 0;
+        transform: translateY(4px);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .nei-content > * {
+        animation: none;
+    }
+}
+
+/* =========================================================
+   Theme system. The html prefix intentionally gives these
+   token declarations higher specificity than :root.
+   ========================================================= */
+html.theme-dark {
+    color-scheme: dark;
+    --nei-bg: #0e0e10;
+    --nei-surface: #17171a;
+    --nei-panel: #1f1f23;
+    --nei-line: #2c2c31;
+    --nei-text: #f4f4f5;
+    --nei-muted: #8b8b92;
+
+    --lumo-base-color: #17171a;
+    --lumo-body-text-color: #f4f4f5;
+    --lumo-secondary-text-color: #a1a1a8;
+    --lumo-tertiary-text-color: #6e6e75;
+    --lumo-disabled-text-color: rgba(255, 255, 255, 0.3);
+    --lumo-contrast-5pct: rgba(255, 255, 255, 0.05);
+    --lumo-contrast-10pct: rgba(255, 255, 255, 0.1);
+    --lumo-contrast-20pct: rgba(255, 255, 255, 0.2);
+    --lumo-contrast-30pct: rgba(255, 255, 255, 0.3);
+    --lumo-contrast-40pct: rgba(255, 255, 255, 0.4);
+    --lumo-contrast-50pct: rgba(255, 255, 255, 0.5);
+    --lumo-contrast-60pct: rgba(255, 255, 255, 0.6);
+    --lumo-contrast-70pct: rgba(255, 255, 255, 0.7);
+    --lumo-contrast-80pct: rgba(255, 255, 255, 0.8);
+    --lumo-contrast-90pct: rgba(255, 255, 255, 0.9);
+
+    --lumo-primary-color: var(--nei-accent);
+    --lumo-primary-text-color: var(--nei-accent);
+    --lumo-primary-contrast-color: #000;
+
+    --lumo-error-color: #ff6961;
+    --lumo-error-text-color: #ff8a80;
+    --lumo-success-color: #68d391;
+    --lumo-success-text-color: #9ae6b4;
+}
+
+html.theme-warm {
+    color-scheme: light;
+    --nei-bg: #fbf3da;
+    --nei-surface: #fff8e7;
+    --nei-panel: #f6ead0;
+    --nei-line: #e7d4a6;
+    --nei-text: #3e2c12;
+    --nei-muted: #8a6d3f;
+
+    --lumo-base-color: #fff8e7;
+    --lumo-body-text-color: #3e2c12;
+    --lumo-secondary-text-color: #6b5230;
+    --lumo-primary-color: var(--nei-accent);
+    --lumo-primary-text-color: var(--nei-accent);
+    --lumo-primary-contrast-color: #3e2c12;
+}
+
+/* ---------- recolour remaining base.css components ---------- */
+.nei-btn-ghost {
+    background: var(--nei-surface);
+}
+
+.nei-tagline {
+    color: var(--nei-muted);
+}
+
+.nei-pill {
+    background: var(--nei-panel);
+}
+
+.nei-area-card,
+.nei-folder-tile {
+    background: var(--nei-surface);
+}
+
+.nei-box.off {
+    background: var(--nei-line);
+}
+
+.nei-summary {
+    background: var(--nei-accent-soft);
+}
+
+.nei-statusbar {
+    background: var(--nei-panel);
+    color: var(--nei-muted);
+}
+
+*::-webkit-scrollbar-thumb {
+    background: var(--nei-line);
+}
+
+/* Cross-view constant policy: these items use dark ink in every theme. */
+.nei-note-card,
+.nei-note-chip,
+.nei-cal-chip,
+.nei-tag {
+    color: #1d1d1f;
+}
+
+/* ---------- frosted sidebar shell ---------- */
+.sidebar-transparent .nei-app {
+    background: transparent;
+}
+
+.sidebar-transparent .nei-statusbar {
+    background: color-mix(in srgb, var(--nei-panel) 70%, transparent);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-top-color: transparent;
+}
+
+/* =========================================================
+   BORDERLESS FIELDS — all Vaadin text/input fields and native
+   text inputs/areas. Background fills are intentionally unchanged.
+   Borders and focus strokes are removed in every state.
+   ========================================================= */
+
+html body :is(
+    vaadin-text-field,
+    vaadin-text-area,
+    vaadin-integer-field,
+    vaadin-number-field,
+    vaadin-big-decimal-field,
+    vaadin-email-field,
+    vaadin-password-field,
+    vaadin-time-picker,
+    vaadin-date-picker,
+    vaadin-select,
+    vaadin-combo-box,
+    vaadin-multi-select-combo-box,
+    vaadin-custom-field,
+    vaadin-select-text-field,
+    vaadin-combo-box-text-field,
+    vaadin-date-picker-text-field,
+    vaadin-time-picker-text-field,
+    vaadin-multi-select-combo-box-text-field
+) {
+    --vaadin-input-field-border-width: 0 !important;
+    --vaadin-input-field-border-color: transparent !important;
+    --vaadin-input-field-border-width-hover: 0 !important;
+    --vaadin-input-field-border-color-hover: transparent !important;
+    --vaadin-input-field-border-width-focused: 0 !important;
+    --vaadin-input-field-border-color-focused: transparent !important;
+    --vaadin-input-field-border-width-invalid: 0 !important;
+    --vaadin-input-field-border-color-invalid: transparent !important;
+    --vaadin-input-field-border-width-disabled: 0 !important;
+    --vaadin-input-field-border-color-disabled: transparent !important;
+    --vaadin-input-field-border-width-read-only: 0 !important;
+    --vaadin-input-field-border-color-read-only: transparent !important;
+    --vaadin-input-field-highlight-background: transparent !important;
+    --vaadin-input-field-focus-ring: none !important;
+
+    border: 0 !important;
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+html body :is(
+    vaadin-text-field,
+    vaadin-text-area,
+    vaadin-integer-field,
+    vaadin-number-field,
+    vaadin-big-decimal-field,
+    vaadin-email-field,
+    vaadin-password-field,
+    vaadin-time-picker,
+    vaadin-date-picker,
+    vaadin-select,
+    vaadin-combo-box,
+    vaadin-multi-select-combo-box,
+    vaadin-custom-field,
+    vaadin-select-text-field,
+    vaadin-combo-box-text-field,
+    vaadin-date-picker-text-field,
+    vaadin-time-picker-text-field,
+    vaadin-multi-select-combo-box-text-field
+)::part(input-field) {
+    border: 0 !important;
+    outline: none !important;
+    box-shadow: none !important;
+    background-image: none !important;
+}
+
+html body :is(
+    vaadin-text-field,
+    vaadin-integer-field,
+    vaadin-number-field,
+    vaadin-big-decimal-field,
+    vaadin-email-field,
+    vaadin-password-field,
+    vaadin-time-picker,
+    vaadin-date-picker,
+    vaadin-select,
+    vaadin-combo-box,
+    vaadin-multi-select-combo-box,
+    vaadin-select-text-field,
+    vaadin-combo-box-text-field,
+    vaadin-date-picker-text-field,
+    vaadin-time-picker-text-field,
+    vaadin-multi-select-combo-box-text-field
+)::part(input),
+html body vaadin-text-area::part(textarea) {
+    border: 0 !important;
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+html body input:not([type="checkbox"]):not([type="radio"]):not([type="button"]):not([type="submit"]):not([type="reset"]),
+html body textarea {
+    border: 0 !important;
+    outline: none !important;
+    box-shadow: none !important;
+}

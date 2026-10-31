@@ -1,199 +1,265 @@
 package com.projectii.Nei.ui.notes;
 
-import com.vaadin.flow.component.ClientCallable;
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.Html;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.checkbox.Checkbox;
-import com.vaadin.flow.component.datepicker.DatePicker;
-import com.vaadin.flow.component.dialog.Dialog;
-import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.*;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
-import com.vaadin.flow.component.notification.Notification;
-import com.vaadin.flow.component.select.Select;
-import com.vaadin.flow.component.combobox.ComboBox;
-import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
-import com.vaadin.flow.component.timepicker.TimePicker;
-import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.value.ValueChangeMode;
+import com.vaadin.flow.router.AfterNavigationEvent;
+import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import com.vaadin.flow.data.value.ValueChangeMode;
+
 import java.time.LocalDate;
-import java.time.LocalTime;
-import java.time.YearMonth;
-import java.util.function.Consumer;
-import java.time.format.DateTimeFormatter;
-import java.util.UUID;
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
 import com.projectii.Nei.ui.model.*;
 import com.projectii.Nei.ui.service.*;
 import com.projectii.Nei.ui.shared.*;
 import com.projectii.Nei.ui.app.MainLayout;
 
+@CssImport("./styles/components.css")
+@CssImport("./styles/notes.css")
 @Route(value = "notes", layout = MainLayout.class)
 @PageTitle("Notes | Nei")
-public class NotesView extends NeiView {
+public class NotesView extends NeiView implements AfterNavigationObserver {
     private final TaskUiService tasks;
     private final NoteUiService notes;
-    private String noteColorFilter = null;
-    private String noteSearch = "";
+    private final UiState state;
+    private final NoteEditor editor;
 
-    public NotesView(TaskUiService tasks, NoteUiService notes) {
+    private String noteSearch = "";
+    private String noteColorFilter = null;
+
+    private final Div listContainer = new Div();
+    private final List<Span> filterDots = new ArrayList<>();
+    private final Map<Object, Span> snippetBySrc = new HashMap<>();  // in-place text updates
+    private final Map<Object, Div> rowBySrc = new HashMap<>();       // highlight by reference
+
+    public NotesView(TaskUiService tasks, NoteUiService notes, UiState state) {
         this.tasks = tasks;
         this.notes = notes;
-        refresh();
+        this.state = state;
+        this.editor = new NoteEditor(notes, tasks, this::syncText, this::refreshList, () -> go("today"));
+        buildShell();
+        refreshList();
     }
 
+    /** The list is the only thing that re-renders; the editor instance persists, so typing keeps focus. */
     @Override
     protected void refresh() {
-        removeAll();
-        add(buildNotes());
+        refreshList();
     }
 
-    private void noteDialog(TaskItem t) {
-        TaskDialogs.openNote(t, tasks, this::refresh);
+    /**
+     * Fired each time we navigate INTO /notes. If a task is the global selection
+     * (set by Today's "Open Notes" or Calendar), open its note here, editable.
+     */
+    @Override
+    public void afterNavigation(AfterNavigationEvent event) {
+        if (state.selected != null) {
+            editor.loadTask(state.selected);
+            refreshList();
+        }
     }
 
-    private record NoteView(String text, String color, LocalDate date, NoteItem note, TaskItem task) {}
-
-    private Component buildNotes() {
-        Div grid = new Div();
-        grid.addClassName("nei-note-grid");
-        Runnable fill = () -> {
-            grid.removeAll();
-            String q = noteSearch.toLowerCase();
-            List<NoteView> all = new ArrayList<>();
-            notes.all().forEach(n -> all.add(new NoteView(n.text, n.color, n.date, n, null)));
-            // notes written on tasks show up here automatically
-            tasks.all().stream().filter(t -> !t.note.isBlank()).forEach(t -> all.add(new NoteView(t.note,
-                    t.list.equals("Work") ? Palette.NOTE_COLORS[3] : Palette.NOTE_COLORS[0],
-                    t.due != null ? t.due : LocalDate.now(), null, t)));
-            all.stream()
-                    .filter(v -> noteColorFilter == null || v.color().equals(noteColorFilter))
-                    .filter(v -> q.isBlank() || v.text().toLowerCase().contains(q)
-                            || (v.task() != null && v.task().title.toLowerCase().contains(q)))
-                    .sorted(java.util.Comparator.comparing(NoteView::date).reversed())
-                    .forEach(v -> grid.add(noteCard(v)));
-            if (grid.getChildren().findAny().isEmpty()) {
-                Div empty = new Div("No notes yet. Tap + to write about your day.");
-                empty.addClassName("nei-empty");
-                grid.add(empty);
-            }
-        };
+    private void buildShell() {
+        Button newBtn = new Button();
+        newBtn.setText("+ New");
+        newBtn.addClassName("nei-btn-primary");
+        newBtn.addClassName("nei-note-newbtn");
+        newBtn.addClickListener(e -> editor.newNote());
 
         TextField search = new TextField();
         search.addClassName("nei-note-search");
         search.setPlaceholder("Search notes");
         search.setPrefixComponent(new Icon(VaadinIcon.SEARCH));
-        search.setValue(noteSearch);
         search.setValueChangeMode(ValueChangeMode.EAGER);
-        search.addValueChangeListener(e -> { noteSearch = e.getValue(); fill.run(); });
+        search.addValueChangeListener(e -> {
+            noteSearch = e.getValue() == null ? "" : e.getValue();
+            refreshList();
+        });
 
         Div dots = new Div();
         dots.addClassName("nei-note-dots");
         for (String c : Palette.NOTE_COLORS) {
             Span dot = new Span();
             dot.addClassName("nei-cdot");
-            if (c.equals(noteColorFilter)) dot.addClassName("on");
             dot.getStyle().set("background", c);
-            dot.addClickListener(e -> { noteColorFilter = c.equals(noteColorFilter) ? null : c; refresh(); });
+            dot.getElement().addEventListener("click", ev -> {
+                noteColorFilter = c.equals(noteColorFilter) ? null : c;
+                refreshList();
+            });
+            filterDots.add(dot);
             dots.add(dot);
         }
 
-        Button plus = new Button(new Icon(VaadinIcon.PLUS), e -> openNoteEditor(null));
-        plus.addClassNames("nei-round", "nei-note-plus");
-        plus.getElement().setAttribute("title", "New note");
-        plus.getElement().setAttribute("aria-label", "New note");
+        Div toolsRow = new Div(search, dots);
+        toolsRow.addClassName("nei-note-toolsrow");
+        Div headRow = new Div(new H1("Notes"), newBtn);
+        headRow.addClassName("nei-note-headrow");
+        Div top = new Div(headRow, toolsRow);
+        top.addClassName("nei-note-top");
 
-        Div tools = new Div(search, dots, plus);
-        tools.addClassName("nei-note-tools");
-        Div head = new Div(new H1("Notes"), tools);
-        head.addClassName("nei-note-head");
+        listContainer.addClassName("nei-note-list");
+        Div listCol = new Div(top, listContainer);
+        listCol.addClassName("nei-note-listcol");
 
-        fill.run();
-        Div page = new Div(head, grid);
+        Div page = new Div(listCol, editor);
         page.addClassName("nei-notes");
-        return page;
+        removeAll();
+        add(page);
     }
 
-    private Component noteCard(NoteView v) {
-        Div card = new Div();
-        card.addClassName("nei-note-card");
-        card.getStyle().set("background", v.color());
+    /** Cheap path while typing: update just the open row's snippet, no rebuild, no focus loss. */
+    private void syncText() {
+        Object src = editor.currentNote() != null ? editor.currentNote() : editor.currentTask();
+        Span s = src == null ? null : snippetBySrc.get(src);
+        if (s != null) s.setText(snippet(textOf(src)));
+    }
 
-        if (v.task() != null) {
-            Span chip = new Span("Task: " + v.task().title);
-            chip.addClassName("nei-note-chip");
-            card.add(chip);
+    private void refreshList() {
+        listContainer.removeAll();
+        snippetBySrc.clear();
+        rowBySrc.clear();
+        markFilterDots();
+
+        String q = noteSearch.toLowerCase();
+        List<Row> rows = new ArrayList<>();
+
+        for (NoteItem n : notes.all()) {
+            rows.add(Row.ofNote(n));
+        }
+
+        for (TaskItem t : tasks.all()) {
+            boolean blank = t.note == null || t.note.isBlank();
+            if (blank && t != state.selected) continue;
+            rows.add(Row.ofTask(t, "Work".equals(t.list) ? Palette.NOTE_COLORS[3] : Palette.NOTE_COLORS[0]));
+        }
+
+        rows.sort(Comparator.comparing((Row r) -> r.date, Comparator.nullsFirst(Comparator.naturalOrder())).reversed());
+
+        rows.stream()
+                .filter(r -> noteColorFilter == null || r.color.equals(noteColorFilter))
+                .filter(r -> q.isBlank() || r.text.toLowerCase().contains(q)
+                        || (r.title != null && r.title.toLowerCase().contains(q)))
+                .forEach(r -> listContainer.add(row(r)));
+
+        if (rows.isEmpty() || listContainer.getChildren().findAny().isEmpty()) {
+            Div empty = new Div("No notes yet. Tap + New to write about your day.");
+            empty.addClassName("nei-empty");
+            listContainer.add(empty);
+        }
+
+        highlight();
+    }
+
+    private Component row(Row r) {
+        Span snippet = new Span(snippet(r.text));
+        snippet.addClassName("nei-note-snippet");
+
+        Span date = new Span(r.date == null ? "" : r.date.getMonth().toString().substring(0, 3) + " " + r.date.getDayOfMonth());
+        date.addClassName("nei-note-date");
+
+        Div top = new Div(snippet, date);
+        top.addClassName("nei-note-rowtop");
+
+        Div sub = new Div();
+        sub.addClassName("nei-note-rowsub");
+
+        if (r.task != null) {
+            Span tag = new Span("Task");
+            tag.addClassName("nei-note-tasktag");
+
+            Span title = new Span(r.title == null ? "" : r.title);
+            title.addClassName("nei-note-sub");
+
+            sub.add(tag, title);
         } else {
-            NoteItem n = v.note();
-            Button star = new Button(new Icon(VaadinIcon.STAR), e -> { n.starred = !n.starred; notes.save(n); refresh(); });
-            star.addClassNames("nei-round", "nei-star", n.starred ? "on" : "off");
-            star.getElement().setAttribute("aria-label", "Favourite");
-            card.add(star);
+            Span preview = new Span(secondLine(r.text));
+            preview.addClassName("nei-note-sub");
+            sub.add(preview);
+
+            if (r.starred) {
+                Span st = new Span(new Icon(VaadinIcon.STAR));
+                st.addClassName("nei-note-starspan");
+                sub.add(st);
+            }
         }
 
-        Div text = new Div(v.text());
-        text.addClassName("nei-note-text");
+        Div row = new Div(top, sub);
+        row.addClassName("nei-note-row");
+        row.getStyle().set("--note-tint", r.color);
 
-        Button edit = new Button(new Icon(VaadinIcon.PENCIL), e -> {
-            if (v.note() != null) openNoteEditor(v.note());
-            else noteDialog(v.task());
+        row.addClickListener(e -> {
+            if (r.note != null) {
+                state.selected = null;
+                editor.loadNote(r.note);
+            } else {
+                state.selected = r.task;
+                editor.loadTask(r.task);
+            }
+            highlight();
         });
-        edit.addClassName("nei-round");
-        edit.getElement().setAttribute("aria-label", "Open note");
-        Div foot = new Div(new Span(v.date().format(DateTimeFormatter.ofPattern("MMM d, yyyy"))), edit);
-        foot.addClassName("nei-note-foot");
 
-        card.add(text, foot);
-        return card;
+        Object src = r.note != null ? r.note : (Object) r.task;
+        snippetBySrc.put(src, snippet);
+        rowBySrc.put(src, row);
+        return row;
     }
 
-    private void openNoteEditor(NoteItem existing) {
-        Dialog d = new Dialog();
-        d.setHeaderTitle(existing == null ? "New note" : "Edit note");
-        TextArea text = new TextArea();
-        text.setPlaceholder("How was your day?");
-        text.setWidth("380px");
-        text.setMinHeight("160px");
-        text.setMaxHeight("300px");
-        text.setMaxLength(2000);
-        if (existing != null) text.setValue(existing.text);
+    private void highlight() {
+        Object cur = editor.currentNote() != null ? editor.currentNote() : editor.currentTask();
+        rowBySrc.forEach((src, row) -> {
+            if (src == cur) row.addClassName("sel");
+            else row.removeClassName("sel");
+        });
+    }
 
-        String[] picked = {existing != null ? existing.color : Palette.NOTE_COLORS[0]};
-        Div swatches = new Div();
-        swatches.addClassName("nei-swatches");
-        for (String c : Palette.NOTE_COLORS) {
-            Span sw = new Span();
-            sw.addClassName("nei-cdot");
-            sw.getStyle().set("background", c);
-            if (c.equals(picked[0])) sw.addClassName("on");
-            sw.addClickListener(e -> {
-                picked[0] = c; // MOCK: replace with noteService call
-                swatches.getChildren().forEach(x -> x.getElement().getClassList().remove("on"));
-                sw.addClassName("on");
-            });
-            swatches.add(sw);
+    private void markFilterDots() {
+        for (int i = 0; i < filterDots.size(); i++) {
+            Span d = filterDots.get(i);
+            if (Palette.NOTE_COLORS[i].equals(noteColorFilter)) d.addClassName("on");
+            else d.removeClassName("on");
+        }
+    }
+
+    private String textOf(Object src) {
+        if (src instanceof NoteItem n) return n.text == null ? "" : n.text;
+        if (src instanceof TaskItem t) return t.note == null ? "" : t.note;
+        return "";
+    }
+
+    private String snippet(String text) {
+        String t = text == null ? "" : text.strip();
+        if (t.isEmpty()) return "Untitled";
+        int nl = t.indexOf('\n');
+        if (nl > 0) t = t.substring(0, nl);
+        return t.length() > 64 ? t.substring(0, 64) + "…" : t;
+    }
+
+    private String secondLine(String text) {
+        String t = text == null ? "" : text.strip();
+        int nl = t.indexOf('\n');
+        return nl < 0 ? "" : t.substring(nl + 1).strip();
+    }
+
+    /** One flattened row for either a real note or a task-derived note. */
+    private record Row(String text, String title, String color, LocalDate date,
+                       boolean starred, NoteItem note, TaskItem task) {
+        static Row ofNote(NoteItem n) {
+            return new Row(n.text, null, n.color, n.date, n.starred, n, null);
         }
 
-        Button save = new Button("Save", e -> {
-            if (text.getValue().isBlank()) { Notification.show("Write something first"); return; }
-            if (existing == null) notes.add(new NoteItem(text.getValue().trim(), picked[0], LocalDate.now(), false));
-            else { existing.text = text.getValue().trim(); existing.color = picked[0]; notes.save(existing); }
-            d.close();
-            refresh();
-        });
-        save.addClassName("nei-btn-primary");
-        d.add(new Div(text, swatches));
-        d.getFooter().add(new Button("Cancel", e -> d.close()));
-        if (existing != null) d.getFooter().add(new Button("Delete", e -> { notes.delete(existing); d.close(); refresh(); }));
-        d.getFooter().add(save);
-        d.open();
+        static Row ofTask(TaskItem t, String color) {
+            return new Row(t.note, t.title, color, t.due, false, null, t);
+        }
     }
 }

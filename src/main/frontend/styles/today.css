@@ -1,0 +1,239 @@
+/* =========================================================
+   today.css — two-zone daily board: list hero + smart inspector.
+   The old left menu column is GONE (its real jobs — search, list
+   filter, count, overload, greeting — moved into .nei-today-bar;
+   its nav rows were duplicates of the global rail). The right
+   pane is an inspector that is never dead: empty state = a
+   "Today at a glance" summary, selected state = a sectioned editor.
+   base.css is inherited via MainLayout. .nei-warn / .nei-btn-* /
+   .nei-empty are global primitives (base.css), used here, not owned.
+   The two .nei-note rules are today's (detail-pane note box).
+   Recolour sits at the BOTTOM so it wins.
+   ========================================================= */
+
+/* ---- the two zones ---- */
+.nei-today {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 360px;
+    gap: 16px;
+    height: 100%;
+    padding: 16px;
+    box-sizing: border-box;
+    background: var(--nei-bg);
+}
+
+/* ---- LEFT zone: bar (fixed) + add (fixed) + list (scrolls) ---- */
+.nei-today-main { display: flex; flex-direction: column; min-height: 0; min-width: 0; }
+
+.nei-today-bar {
+    flex: none;
+    display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+    padding: 4px 4px 14px;
+    border-bottom: 1px solid var(--nei-line);
+    margin-bottom: 12px;
+}
+.nei-bar-left { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.nei-greet { font-size: 22px; font-weight: 700; letter-spacing: -.01em; color: var(--nei-text); }
+.nei-greet-sub { font-size: 13px; color: var(--nei-muted); }
+.nei-date { font-size: 12px; color: var(--nei-muted); margin-top: 2px; }
+
+.nei-bar-right { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.nei-bar-search { width: 200px; --vaadin-input-field-background: var(--nei-panel); --lumo-contrast-10pct: var(--nei-line); }
+.nei-pills { display: inline-flex; gap: 4px; padding: 3px; border-radius: 10px; background: var(--nei-panel); border: 1px solid var(--nei-line); }
+.nei-pillf {
+    padding: 5px 12px; border-radius: 7px; font-size: 12.5px; font-weight: 600;
+    color: var(--nei-muted); cursor: pointer; user-select: none; transition: background .12s, color .12s;
+}
+.nei-pillf:hover { color: var(--nei-text); background: var(--nei-hover); }
+.nei-pillf.on { background: var(--nei-accent); color: var(--nei-accent-text); }
+.nei-count2 {
+    min-width: 30px; text-align: center; padding: 4px 10px; border-radius: 8px;
+    border: 1px solid var(--nei-line); background: var(--nei-surface);
+    font-size: 14px; font-weight: 700; color: var(--nei-text); font-variant-numeric: tabular-nums;
+}
+.nei-over { font-size: 12px; font-weight: 700; color: #8a3a1c; background: #fde9e1; padding: 4px 9px; border-radius: 8px; }
+
+/* ---- add row ---- */
+.nei-add-row {
+    flex: none;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0 4px 12px;
+}
+
+.nei-add-row vaadin-text-field {
+    flex: 1;
+    min-width: 0;
+}
+
+.nei-add {
+    --vaadin-input-field-background: var(--nei-panel);
+}
+
+.nei-add-btn {
+    flex: none;
+    width: 40px;
+    height: 40px;
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    border: 0 !important;
+    border-radius: 50%;
+    background: var(--nei-accent) !important;
+    color: var(--nei-accent-text) !important;
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+    box-shadow: 0 4px 12px color-mix(in srgb, var(--nei-accent) 38%, transparent);
+    transition: transform .12s ease, box-shadow .12s ease;
+}
+
+.nei-add-btn vaadin-icon {
+    width: 18px;
+    height: 18px;
+    color: inherit;
+}
+
+.nei-add-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 7px 18px color-mix(in srgb, var(--nei-accent) 48%, transparent);
+}
+
+.nei-reduce-motion .nei-add-btn:hover {
+    transform: none;
+}
+
+/* ---- task list ---- */
+.nei-task-list { flex: 1; min-height: 0; overflow: auto; padding: 0 4px; display: flex; flex-direction: column; gap: 2px; }
+.nei-task-list .nei-empty { padding: 32px 8px; text-align: center; }
+
+/* ---- task rows: open first, done sink; selected gets an accent bar (ties to Notes) ---- */
+.nei-task {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 11px 10px; border-radius: 12px; cursor: pointer;
+    border-left: 3px solid transparent;
+    transition: background .12s ease, border-color .12s ease;
+}
+.nei-task:hover { background: var(--nei-hover); }
+.nei-task.selected { background: var(--nei-selected); border-left-color: var(--nei-accent); }
+.nei-task vaadin-checkbox { margin-top: 1px; }
+.nei-task-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 5px; }
+.nei-task-title { font-size: 14.5px; color: var(--nei-text); line-height: 1.35; overflow-wrap: anywhere; }
+.nei-task.done .nei-task-title { text-decoration: line-through; color: var(--nei-muted); }
+.nei-task.done { opacity: .62; }
+
+.nei-task-flags { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; }
+.nei-flag { font-size: 11.5px; color: var(--nei-muted); display: inline-flex; align-items: center; gap: 4px; }
+.nei-flag-date { font-variant-numeric: tabular-nums; }
+.nei-flag-list::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--nei-muted); }
+.nei-flag-list.is-work::before { background: #4cc3d9; }
+.nei-flag-list.is-personal::before { background: #ef6f6c; }
+.nei-flag-alarm { color: var(--nei-accent-soft-text); }
+
+.nei-task-go { flex: none; align-self: center; width: 16px; height: 16px; color: var(--nei-muted); opacity: 0; transition: opacity .12s, transform .12s; }
+.nei-task:hover .nei-task-go { opacity: .8; }
+.nei-task.selected .nei-task-go { opacity: 1; color: var(--nei-accent); transform: translateX(1px); }
+
+/* ---- RIGHT zone: the inspector card ---- */
+.nei-detail {
+    min-height: 0; overflow: auto; box-sizing: border-box;
+    background: var(--nei-surface);
+    border: 1px solid var(--nei-line);
+    border-radius: 16px;
+    box-shadow: 0 8px 24px rgba(40,50,30,.06);
+    display: flex; flex-direction: column;
+}
+
+/* empty state — "Today at a glance" (never a dead pane) */
+.nei-det-empty { padding: 22px 20px; display: flex; flex-direction: column; gap: 14px; align-items: flex-start; }
+.nei-det-empty-cat {
+    width: 96px; height: 64px; align-self: center; margin: 4px 0 2px;
+    background: url('../images/cat.png') center / contain no-repeat;
+    mix-blend-mode: multiply; opacity: .5;
+}
+.nei-det-empty-head { font-size: 16px; font-weight: 700; color: var(--nei-text); }
+.nei-det-glance { width: 100%; display: flex; flex-direction: column; gap: 2px; }
+.nei-stat-line { display: flex; align-items: center; gap: 9px; padding: 8px 2px; border-top: 1px solid var(--nei-line); font-size: 13.5px; color: var(--nei-text); }
+.nei-stat-line .nei-dot { width: 9px; height: 9px; border-radius: 50%; flex: none; }
+.nei-stat-line span:nth-child(2) { flex: 1; }
+.nei-stat-n { font-weight: 700; font-variant-numeric: tabular-nums; color: var(--nei-muted); }
+.nei-det-hint { font-size: 12.5px; color: var(--nei-muted); }
+.nei-det-empty .nei-warn { width: 100%; margin-top: 2px; }
+
+/* editor state — sectioned, narrow-pane friendly (labels stack over fields) */
+.nei-det-editor { padding: 18px 18px 0; display: flex; flex-direction: column; gap: 4px; flex: 1; min-height: 0; }
+.nei-det-sec { padding: 10px 0; border-top: 1px solid var(--nei-line); display: flex; flex-direction: column; gap: 8px; }
+.nei-det-sec:first-child { border-top: 0; padding-top: 2px; }
+.nei-det-label { font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--nei-muted); }
+
+.nei-det-title { --vaadin-input-field-background: transparent; --lumo-body-text-color: var(--nei-text); }
+.nei-det-title::part(input-field) { box-shadow: none; border: 0; background: transparent; padding: 0; min-height: 0; }
+.nei-det-title input, .nei-det-title::part(input-field) { font-size: 18px; font-weight: 700; color: var(--nei-text); }
+
+.nei-det-desc { --vaadin-input-field-background: var(--nei-panel); --lumo-body-text-color: var(--nei-text); }
+
+.nei-prop { display: flex; flex-direction: column; gap: 5px; padding: 2px 0; }
+.nei-prop > span:first-child { font-size: 12px; color: var(--nei-muted); }
+.nei-prop vaadin-select, .nei-prop vaadin-date-picker, .nei-prop vaadin-text-field { width: 100%; }
+
+.nei-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.nei-tag { display: inline-block; padding: 2px 9px; border-radius: 6px; font-size: 12px; }
+.tag-a { background: #cfe8ea; } .tag-b { background: #f4c4c4; }
+.tag-c { background: #e6e6e6; } .tag-d { background: #f8d9d6; }
+
+.nei-det-addsub { display: flex; align-items: center; gap: 7px; font-size: 13px; color: var(--nei-muted); cursor: pointer; padding: 4px 2px; }
+.nei-det-addsub vaadin-icon { width: 14px; height: 14px; }
+.nei-det-addsub:hover { color: var(--nei-text); }
+.nei-subs { display: flex; flex-direction: column; gap: 2px; }
+.nei-subs vaadin-checkbox { font-size: 13.5px; }
+
+.nei-sub-row { display: flex; align-items: center; gap: 8px; font-size: 13.5px; }
+.nei-sub-row span { color: var(--nei-text); overflow-wrap: anywhere; }
+
+.nei-note { background: #fbf4d6; border-radius: 10px; padding: 10px 12px; font-size: 13px; margin-top: 4px; }
+.nei-note { max-height: 120px; overflow: auto; white-space: pre-wrap; overflow-wrap: anywhere; }
+
+.nei-actions {
+    position: sticky; bottom: 0; margin: 8px -18px 0; padding: 12px 18px;
+    display: flex; gap: 10px;
+    background: var(--nei-surface);
+    border-top: 1px solid var(--nei-line);
+}
+.nei-actions vaadin-button, .nei-actions button { flex: 1; }
+
+/* ---- responsive: never hide the editor (the old rule did, under 1100px) ---- */
+@media (max-width: 1040px) {
+    .nei-today { grid-template-columns: minmax(0,1fr) 320px; gap: 12px; padding: 12px; }
+    .nei-bar-search { width: 150px; }
+}
+@media (max-width: 880px) {
+    .nei-today { grid-template-columns: 1fr; grid-template-rows: minmax(0,1fr) auto; }
+    .nei-detail { max-height: 56vh; }
+}
+
+/* ---- Today field backgrounds: soft fill, no border (border killed globally in base.css) ---- */
+.nei-today vaadin-text-field::part(input-field),
+.nei-today vaadin-text-area::part(input-field),
+.nei-today vaadin-select::part(input-field),
+.nei-today vaadin-date-picker::part(input-field) {
+    background: var(--nei-panel);
+    border-radius: 12px;
+}
+
+/* The big editable title in the inspector should stay borderless AND backgroundless */
+.nei-today .nei-det-title::part(input-field) {
+    background: transparent;
+    border-radius: 0;
+}
+
+/* ---- theme recolour (today parts only) — BOTTOM so it wins ---- */
+.nei-pillf.on { background: var(--nei-accent); color: var(--nei-accent-text); }
+.nei-task.selected { background: var(--nei-selected); border-left-color: var(--nei-accent); }
+.nei-flag-list.is-work::before { background: #4cc3d9; }
+.nei-flag-list.is-personal::before { background: #ef6f6c; }
+.nei-note { background: var(--nei-accent-soft); }
+.theme-dark .nei-detail { box-shadow: 0 10px 30px rgba(0,0,0,.5); }
+.theme-dark .nei-det-empty-cat { filter: invert(1); mix-blend-mode: screen; }
+.theme-dark .nei-over { background: color-mix(in srgb, #ff6961 22%, var(--nei-surface)); color: #ff8a80; }
+/* dark ink for .nei-tag stays in base.css (cross-view CONSTANT policy) */

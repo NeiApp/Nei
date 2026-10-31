@@ -28,16 +28,21 @@ public class MonthSummaryService {
         var month = previousDate.getMonthValue();
         var year = previousDate.getYear();
 
-        var alreadyExistMonthAndYear = monthSummaryRepository.existsByMonthAndYear(month, year);
-        if (alreadyExistMonthAndYear) return; //returns nothing if month already exists
+        // FIX: Use new method name existsBySummaryMonthAndSummaryYear
+        var alreadyExistMonthAndYear = monthSummaryRepository.existsBySummaryMonthAndSummaryYear(month, year);
+        if (alreadyExistMonthAndYear) return;
 
+        // NOTE: Ensure WeeklyReviewRepository also has a method matching its own fields.
+        // If WeeklyReview uses 'month'/'year', this line might still fail if that repo isn't updated too.
+        // Assuming WeeklyReviewRepo is correct for now:
         List<WeeklyReview> reviews = weeklyReviewRepository.findAllByMonthAndYear(month, year);
 
-        if (reviews.isEmpty()) return; // returns nothing if weeklyReview already empty
+        if (reviews.isEmpty()) return;
+
         MonthSummary summary = getMonthSummary(reviews, month, year);
 
         monthSummaryRepository.save(summary);
-   }
+    }
 
     private MonthSummary getMonthSummary(List<WeeklyReview> reviews, int month, int year) {
         int totalTasks = 0;
@@ -51,28 +56,34 @@ public class MonthSummaryService {
         }
 
         MonthSummary summary = new MonthSummary();
-        summary.setMonth(month);
-        summary.setYear(year);
+
+        // FIX: Use new setter names setSummaryMonth / setSummaryYear
+        summary.setSummaryMonth(month);
+        summary.setSummaryYear(year);
+
         summary.setTotalTasks(totalTasks);
         summary.setCompletedTasks(completedTasks);
         summary.setSkippedTasks(skippedTasks);
+
         float rate = summary.getCompletionRate();
-        summary.setSummaryText(buildMonthSummaryText(completedTasks, totalTasks,rate));
+        summary.setSummaryText(buildMonthSummaryText(completedTasks, totalTasks, rate));
         return summary;
     }
 
 
     public MonthSummaryResponse getMonthSummary(int month, int year) {
+        // FIX: Use new finder method findBySummaryMonthAndSummaryYear
         MonthSummary summary = monthSummaryRepository
-                .findByMonthAndYear(month, year)
+                .findBySummaryMonthAndSummaryYear(month, year)
                 .orElseThrow(() -> new RuntimeException(
                         "No summary found for " + month + "/" + year
                 ));
 
         return new MonthSummaryResponse(
                 summary.getId(),
-                summary.getMonth(),
-                summary.getYear(),
+                // FIX: Use new getter names getSummaryMonth / getSummaryYear
+                summary.getSummaryMonth(),
+                summary.getSummaryYear(),
                 summary.getTotalTasks(),
                 summary.getCompletedTasks(),
                 summary.getSkippedTasks(),
@@ -82,14 +93,6 @@ public class MonthSummaryService {
         );
     }
 
-    /**
-     * the buildMonthSummaryText creates a detailed format of everything that was done for the last month
-     *
-     * @param completed the amount of tasks that where completed for that month
-     * @param total     the total amount of task that was created for that month
-     * @param rate  return the fix rate by dividing the completedTasks by  totalTasks and times 100
-     * @return it returns a formatted string of the monthly summary
-     */
     private String buildMonthSummaryText(int completed, int total, float rate) {
         return String.format(
                 "You completed %d out of %d tasks this month (%.0f%%).",

@@ -54,7 +54,7 @@ public class TaskServiceImpl implements TaskService {
         task.setWeekDay(findWeekDay(date).orElse(null));
         if (req.alarm() != null) attachAlarm(task, req.alarm());
 
-        return taskMapper.toResponse(taskRepository.save(task));
+        return taskMapper.toTaskLinkResponse(taskRepository.save(task));
     }
 
     @Override
@@ -75,7 +75,7 @@ public class TaskServiceImpl implements TaskService {
         LocalDate today = LocalDate.now();
         List<Task> tasks = taskRepository.findByDate(today);
         return tasks.stream()
-                .map(taskMapper::toResponse)
+                .map(taskMapper::toTaskLinkResponse)
                 .toList();
     }
 
@@ -83,8 +83,9 @@ public class TaskServiceImpl implements TaskService {
     public void addNoteToTask(UUID id, String note) {
         Task task = taskRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("task does not exist"));
-
-        task.setNote(note);
+        Notes addNote = new Notes();
+        addNote.setNote(note);
+        task.setNotes(addNote);
         taskRepository.save(task);
     }
 
@@ -151,10 +152,10 @@ public class TaskServiceImpl implements TaskService {
         taskRepository.save(task);
 
 //        return subTasks.stream()
-//                .map(subTaskMapper::toResponse) // optional, if you use MapStruct/manual mapper
+//                .map(subTaskMapper::toTaskLinkResponse) // optional, if you use MapStruct/manual mapper
 //                .toList();
 
-        return taskMapper.toResponse(task);
+        return taskMapper.toTaskLinkResponse(task);
     }
 
     @Override
@@ -165,7 +166,7 @@ public class TaskServiceImpl implements TaskService {
         checkTimes(task.getStartTime(), task.getEndTime());
         if (req.date() != null) task.setWeekDay(findWeekDay(task.getDate()).orElse(null));
         if (task.getAlarm() != null) scheduleAlarm(task, task.getAlarm());
-        return taskMapper.toResponse(task);
+        return taskMapper.toTaskLinkResponse(task);
     }
 
     @Override

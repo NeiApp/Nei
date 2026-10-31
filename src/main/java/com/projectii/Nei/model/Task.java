@@ -52,7 +52,9 @@ public class Task {
     @Column(updatable = false, name = "created_at")
     private Instant createdAt;
 
-    private String note;
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "note_id")
+    private Notes notes;
 
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "alarm_id")
@@ -71,6 +73,9 @@ public class Task {
     @Enumerated(EnumType.STRING)
     @Column(length = 20)
     private TaskCategory category = TaskCategory.PERSONAL;
+
+    private Double posX;
+    private Double posY;
 
     public void addSubTask(SubTasks subTask) {
         subTasks.add(subTask);

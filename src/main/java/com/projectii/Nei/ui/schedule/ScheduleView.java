@@ -36,6 +36,7 @@ import com.projectii.Nei.ui.service.*;
 import com.projectii.Nei.ui.shared.*;
 import com.projectii.Nei.ui.app.MainLayout;
 
+@CssImport("./styles/schedule.css")
 @Route(value = "schedule", layout = MainLayout.class)
 @PageTitle("Schedule | Nei")
 public class ScheduleView extends NeiView {

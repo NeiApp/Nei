@@ -23,8 +23,7 @@ public class Alarm {
     private int intervalMinutes;
 
     private LocalDateTime startAt;
-
-    @Column(nullable = true)
+    
     private LocalDateTime stopAt;
 
     private LocalDateTime nextFireAt;

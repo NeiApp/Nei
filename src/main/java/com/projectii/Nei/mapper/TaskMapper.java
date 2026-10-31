@@ -12,7 +12,7 @@ import org.mapstruct.*;
 public abstract class TaskMapper {
    public abstract Task toEntity(CreateATask createATask);
 
-   public abstract CreatedTask toResponse(Task task);
+   public abstract CreatedTask toTaskLinkResponse(Task task);
 
    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
    public abstract void update(UpdateTask req, @MappingTarget Task task);

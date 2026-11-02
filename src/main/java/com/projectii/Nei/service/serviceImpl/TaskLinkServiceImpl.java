@@ -1,6 +1,5 @@
 package com.projectii.Nei.service.serviceImpl;
 
-import com.projectii.Nei.mapper.SchedulerMapper;
 import com.projectii.Nei.model.TaskLink;
 import com.projectii.Nei.payload.response.TaskLinkDto;
 import com.projectii.Nei.repository.TaskLinkRepository;
@@ -32,7 +31,7 @@ public class TaskLinkServiceImpl implements TaskLinkService {
         taskLink.setFromTask(taskRepository.getReferenceById(fromId));
         taskLink.setToTask(taskRepository.getReferenceById(toId));
 
-       return  schedulerMapper.toResponse(taskLink);
+       return  new TaskLinkDto(taskLink.getFromTask().getId(),taskLink.getToTask().getId());
     }
 
 

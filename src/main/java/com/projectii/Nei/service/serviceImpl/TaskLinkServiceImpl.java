@@ -16,7 +16,6 @@ import java.util.UUID;
 public class TaskLinkServiceImpl implements TaskLinkService {
     private final TaskRepository taskRepository;
     private final TaskLinkRepository taskLinkRepository;
-    private final SchedulerMapper schedulerMapper;
 
     @Override
     public TaskLinkDto createLink(UUID fromId, UUID toId){

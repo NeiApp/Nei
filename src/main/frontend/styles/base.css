@@ -6,6 +6,16 @@
    stylesheet; shared widgets live in components.css.
    ========================================================= */
 
+/* Registered accent: browsers REJECT invalid color values for
+   registered properties, so a bad inline value (e.g. "YELLOW"
+   from the backend enum) is ignored and the gold default applies
+   instead of breaking every accent-derived rule on fresh load. */
+@property --nei-accent {
+    syntax: '<color>';
+    inherits: true;
+    initial-value: #f7c531;
+}
+
 /* ---------- base tokens (light = default) + derived tints ---------- */
 :root {
     color-scheme: light;

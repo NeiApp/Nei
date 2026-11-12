@@ -4,8 +4,9 @@
      left  = Nei's read + Try next   (the story, widest)
      right = chart + wins/watch      (the evidence)
    Loaded AFTER base.css (inherited via MainLayout) and
-   components.css. Identity dot colours (good/warn) stay literal;
-   every surface/border/text uses tokens so dark/warm/daylight follow.
+   components.css. Identity colours (good green / warn red)
+   stay literal; every surface/border/text uses tokens so
+   dark/warm/daylight follow.
    --p default silences the IDE "cannot resolve" warning (Java sets it inline).
    Recolour/polish sits at the BOTTOM so it wins.
    ========================================================= */
@@ -160,8 +161,30 @@
 
 .nei-bars { display: flex; align-items: flex-end; gap: 12px; height: 150px; }
 .nei-bar-col { flex: 1; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; gap: 6px; font-size: 12px; color: var(--nei-muted); }
-.nei-bar { width: 100%; max-width: 40px; min-height: 4px; background: var(--nei-line); border-radius: 8px; transition: height .4s ease; }
-.nei-bar.top { background: var(--nei-accent); }
+
+/* ---- bars: green = finished, gold ring = best day, gray = empty ----
+   Green/red are the SAME identity literals as the wins/watch dots,
+   and being literals they work even if --nei-accent ever misbehaves.
+   No Java change needed for the empty-day gray: buildChart() writes
+   height:0% inline for zero counts, caught by the attribute selector. */
+.nei-bar {
+    width: 100%;
+    max-width: 40px;
+    min-height: 4px;
+    background: #8bd17c;
+    border-radius: 8px;
+    transition: height .4s ease, background .2s ease;
+}
+.nei-bar.top { box-shadow: 0 0 0 2px var(--nei-accent); }
+.nei-bar[style*="height: 0%"],
+.nei-bar[style*="height:0%"] { background: var(--nei-line); box-shadow: none; }
+
+/* Ready for the stacked upgrade (red skipped segment on top of green).
+   Used once ReviewData gains per-day skipped counts. */
+.nei-bar-stack { width: 100%; max-width: 40px; min-height: 4px; display: flex; flex-direction: column; border-radius: 8px; overflow: hidden; }
+.nei-bar-done  { background: #8bd17c; }
+.nei-bar-skip  { background: #ef8f6a; }
+
 .nei-bar-n { color: var(--nei-text); font-weight: 650; font-variant-numeric: tabular-nums; }
 
 .nei-review-lists { display: flex; flex-direction: column; gap: 14px; }
@@ -217,4 +240,4 @@
     border-color: color-mix(in srgb, var(--nei-accent) 26%, var(--nei-line));
 }
 .theme-warm .nei-hero { border-color: color-mix(in srgb, var(--nei-accent) 30%, var(--nei-line)); }
-/* identity dot colours (good/warn) intentionally stay literal across themes */
+/* identity colours (good green / warn red) intentionally stay literal across themes */

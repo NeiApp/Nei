@@ -51,17 +51,9 @@ public class SettingsView extends NeiView {
     }
 
     private void applyAppearance(DeviceSettings dev) {
-        String mode = dev.themeMode == null ? "light" : dev.themeMode.toLowerCase();
-        String accent = dev.accent == null ? "#f7c531" : dev.accent;
-
-        getUI().ifPresent(ui -> ui.getPage().executeJs(
-                "const el = document.documentElement;"
-                        + "el.classList.remove('theme-dark','theme-warm','sidebar-transparent','nei-reduce-motion');"
-                        + "if ($0 !== 'light') el.classList.add('theme-' + $0);"
-                        + "if ($1) el.classList.add('sidebar-transparent');"
-                        + "if ($2) el.classList.add('nei-reduce-motion');"
-                        + "el.style.setProperty('--nei-accent', $3);",
-                mode, dev.sidebarTransparent, dev.reduceMotion, accent));
+        // Single source of truth: Appearance.apply validates the accent
+        // (hex-only guard) before writing --nei-accent to <html>.
+        Appearance.apply(this, dev);
     }
 
     private Component buildSettings() {

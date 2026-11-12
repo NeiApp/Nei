@@ -158,12 +158,15 @@ public class ReviewView extends NeiView {
         Div bars = new Div();
         bars.addClassName("nei-bars");
         for (int i = 0; i < r.counts().length; i++) {
+            int count = r.counts()[i];
+
             Div bar = new Div();
             bar.addClassName("nei-bar");
-            if (r.counts()[i] == max) bar.addClassName("top");
-            bar.getStyle().set("height", (r.counts()[i] * 100 / max) + "%");
+            if (count == max && max > 0) bar.addClassName("top");
+            bar.getStyle().set("height", (count * 100 / max) + "%");
+            bar.getElement().setAttribute("title", r.labels()[i] + ": " + count + " finished");
 
-            Span n = new Span(String.valueOf(r.counts()[i]));
+            Span n = new Span(String.valueOf(count));
             n.addClassName("nei-bar-n");
 
             Div col = new Div(n, bar, new Span(r.labels()[i]));

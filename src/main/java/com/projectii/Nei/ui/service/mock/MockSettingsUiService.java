@@ -2,10 +2,12 @@ package com.projectii.Nei.ui.service.mock;
 
 import com.projectii.Nei.ui.model.*;
 import com.projectii.Nei.ui.service.*;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 /** MOCK: settings live in memory and reset on restart. Persist them (account and device separately). */
 @Service
+@Profile("mock")   // only used with --spring.profiles.active=mock; the real one is in ui/service/impl
 public class MockSettingsUiService implements SettingsUiService {
     private final AccountSettings account = new AccountSettings();
     private final DeviceSettings device = new DeviceSettings();

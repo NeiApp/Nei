@@ -24,6 +24,10 @@ public interface TaskRepository extends JpaRepository<Task, UUID> {
 
     List<Task> findByDateBetweenOrderByDateAscStartTimeAsc(LocalDate from, LocalDate to);
 
+    // everything, with subtasks loaded in one query (the UI lists tasks across many days)
+    @Query("select distinct t from Task t left join fetch t.subTasks")
+    List<Task> findAllWithSubTasks();
+
     // threaded tasks only: has a thread out, no thread in
     @Query("""
         select t from Task t

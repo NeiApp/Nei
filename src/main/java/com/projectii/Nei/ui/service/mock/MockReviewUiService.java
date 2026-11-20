@@ -2,6 +2,7 @@ package com.projectii.Nei.ui.service.mock;
 
 import com.projectii.Nei.ui.model.ReviewData;
 import com.projectii.Nei.ui.service.*;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -10,6 +11,7 @@ import java.util.List;
 
 /** MOCK: fixed review text. The real one reads a saved review that Spring AI generated when the period closed. */
 @Service
+@Profile("mock")   // only used with --spring.profiles.active=mock; the real one is in ui/service/impl
 public class MockReviewUiService implements ReviewUiService {
     private final SettingsUiService settings;
 

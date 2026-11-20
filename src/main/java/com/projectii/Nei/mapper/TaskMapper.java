@@ -10,8 +10,13 @@ import org.mapstruct.*;
 
 @Mapper(componentModel = "spring")
 public abstract class TaskMapper {
+   // CreateATask calls it "taskCategory", the entity calls it "category": without this the category was dropped
+   @Mapping(source = "taskCategory", target = "category")
    public abstract Task toEntity(CreateATask createATask);
 
+   // same name mismatch on the way out, plus subTasks -> subTask (the response was always returning null for both)
+   @Mapping(source = "category", target = "taskCategory")
+   @Mapping(source = "subTasks", target = "subTask")
    public abstract CreatedTask toTaskLinkResponse(Task task);
 
    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)

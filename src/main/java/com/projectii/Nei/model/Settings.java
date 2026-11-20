@@ -74,4 +74,8 @@ public class Settings {
 
     @Enumerated(EnumType.STRING)
     private AlarmSounds alarmSound = AlarmSounds.SOFT_CHIME;
+
+    private String themeMode = "light";          // "light" | "dark" | "warm"  (null is read as light)
+
+    private boolean sidebarTransparent;
 }

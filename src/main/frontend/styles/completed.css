@@ -1,0 +1,94 @@
+/* =========================================================
+   completed.css — the Completed page: a timeline of finished tasks.
+   Day / Week / Month toggle, group headings, dot + thin line with
+   curved connectors, muted text, accent glow on hover.
+   Uses the same --nei-* tokens as the rest of the app.
+   ========================================================= */
+
+.nei-cl {
+    --nei-curve: color-mix(in srgb, var(--nei-muted) 45%, transparent);
+    height: 100%; box-sizing: border-box; min-height: 0;
+    padding: 16px 24px;
+    display: flex; flex-direction: column;
+    background: var(--nei-bg);
+}
+
+/* ---- header: title + Day/Week/Month ---- */
+.nei-cl-bar {
+    flex: none;
+    display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    padding: 4px 4px 14px;
+    border-bottom: 1px solid var(--nei-line);
+}
+.nei-cl-title { font-size: 22px; font-weight: 700; letter-spacing: -.01em; color: var(--nei-text); }
+.nei-cl-seg { display: inline-flex; gap: 4px; padding: 3px; border-radius: 10px; background: var(--nei-panel); border: 1px solid var(--nei-line); }
+.nei-cl-segbtn {
+    padding: 5px 14px; border-radius: 7px; font-size: 12.5px; font-weight: 600;
+    color: var(--nei-muted); cursor: pointer; user-select: none; transition: background .12s, color .12s;
+}
+.nei-cl-segbtn:hover { color: var(--nei-text); background: var(--nei-hover); }
+.nei-cl-segbtn.on { background: var(--nei-accent); color: var(--nei-accent-text); }
+
+/* ---- scrolling list ---- */
+.nei-cl-list { flex: 1; min-height: 0; overflow: auto; padding: 14px 0; max-width: 760px; }
+.nei-cl-empty { padding: 40px 8px; color: var(--nei-muted); font-size: 14px; }
+
+/* ---- group heading: dot at x=20, curves in from above and out below ---- */
+.nei-cl-head {
+    position: relative; height: 44px; box-sizing: border-box;
+    display: flex; align-items: center; padding-left: 36px;
+    font-size: 14.5px; font-weight: 600; color: var(--nei-text);
+}
+.nei-cl-head::before {
+    content: ""; position: absolute; left: 16px; top: 50%;
+    width: 9px; height: 9px; margin-top: -4.5px; border-radius: 50%;
+    background: var(--nei-muted); opacity: .7; z-index: 1;
+}
+.nei-cl-head::after, .nei-cl-in {
+    content: ""; position: absolute; left: 20px; width: 17px; height: 22px;
+    background: var(--nei-curve);
+    -webkit-mask-size: 100% 100%; mask-size: 100% 100%;
+    -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat;
+}
+/* heading dot -> down-right onto the item line */
+.nei-cl-head::after {
+    top: 22px;
+    -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 17 22'%3E%3Cpath d='M.5 0C.5 11 16.5 11 16.5 22' fill='none' stroke='%23000'/%3E%3C/svg%3E");
+    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 17 22'%3E%3Cpath d='M.5 0C.5 11 16.5 11 16.5 22' fill='none' stroke='%23000'/%3E%3C/svg%3E");
+}
+/* item line (above) -> down-left onto the heading dot */
+.nei-cl-in {
+    top: 0;
+    -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 17 22'%3E%3Cpath d='M16.5 0C16.5 11 .5 11 .5 22' fill='none' stroke='%23000'/%3E%3C/svg%3E");
+    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 17 22'%3E%3Cpath d='M16.5 0C16.5 11 .5 11 .5 22' fill='none' stroke='%23000'/%3E%3C/svg%3E");
+}
+
+/* ---- item: dot on the line at x=36, muted text, soft hover box ---- */
+.nei-cl-item {
+    position: relative; min-height: 44px; box-sizing: border-box;
+    display: flex; align-items: center; gap: 12px;
+    padding: 0 14px 0 52px; border-radius: 10px; cursor: default;
+    transition: background .12s;
+}
+.nei-cl-item::after {                         /* line segment, joins neighbours */
+    content: ""; position: absolute; left: 36px; top: 0; bottom: 0; width: 1px;
+    background: var(--nei-curve);
+}
+.nei-cl-item:last-child::after { bottom: 50%; }
+.nei-cl-item::before {                        /* dot */
+    content: ""; position: absolute; left: 32px; top: 50%;
+    width: 9px; height: 9px; margin-top: -4.5px; border-radius: 50%;
+    background: var(--nei-muted); opacity: .7; z-index: 1;
+    transition: background .12s, box-shadow .12s, opacity .12s;
+}
+.nei-cl-text { flex: 1; min-width: 0; padding: 10px 0; font-size: 15px; line-height: 1.35; color: var(--nei-muted); overflow-wrap: anywhere; transition: color .12s; }
+.nei-cl-undo { flex: none; font-size: 12px; color: var(--nei-muted); cursor: pointer; opacity: 0; transition: opacity .12s, color .12s; }
+.nei-cl-undo:hover { color: var(--nei-text); }
+
+.nei-cl-item:hover { background: var(--nei-hover); }
+.nei-cl-item:hover .nei-cl-text { color: var(--nei-text); }
+.nei-cl-item:hover .nei-cl-undo { opacity: 1; }
+.nei-cl-item:hover::before {
+    background: var(--nei-accent); opacity: 1;
+    box-shadow: 0 0 8px color-mix(in srgb, var(--nei-accent) 70%, transparent);
+}

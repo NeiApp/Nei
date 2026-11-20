@@ -17,6 +17,7 @@ public class SubTasks {
     @GeneratedValue (strategy = GenerationType.UUID)
     private UUID id;
     private String nameOfSubTask;
+    private boolean done;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "task_id")
     private Task task;

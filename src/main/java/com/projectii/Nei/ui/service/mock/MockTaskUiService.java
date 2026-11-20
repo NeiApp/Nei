@@ -3,6 +3,7 @@ package com.projectii.Nei.ui.service.mock;
 import com.projectii.Nei.ui.model.*;
 import com.projectii.Nei.ui.service.TaskUiService;
 import jakarta.annotation.PostConstruct;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -11,6 +12,7 @@ import java.util.List;
 
 /** MOCK: in-memory tasks. Replace with an implementation backed by TaskRepository, then delete this class. */
 @Service
+@Profile("mock")   // only used with --spring.profiles.active=mock; the real one is in ui/service/impl
 public class MockTaskUiService implements TaskUiService {
     private final List<TaskItem> tasks = new ArrayList<>();
 

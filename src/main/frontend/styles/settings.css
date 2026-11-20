@@ -1,0 +1,610 @@
+/* =========================================================
+   settings.css — calm settings dashboard.
+   Restyled to match the Nei identity: soft cards, clear rows,
+   segmented controls, switch toggles, functional theme picker.
+
+   Loaded AFTER components.css. base.css is inherited via
+   MainLayout, so tokens, .theme-*, global primitives,
+   .nei-reduce-motion and desktop-feel policies come from base.css.
+
+   Shared .nei-card / .nei-cdot / .nei-swatches come from
+   components.css, loaded before this file, so .nei-set-card
+   and .nei-swatch can override them.
+   ========================================================= */
+
+/* ---- page ---- */
+.nei-settings {
+    min-height: 100%;
+    max-width: 820px;
+    margin: 0 auto;
+    padding: 30px 26px 64px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+
+    background:
+            radial-gradient(
+                    70% 38% at 50% 0%,
+                    color-mix(in srgb, var(--nei-accent) 10%, transparent) 0%,
+                    transparent 72%
+            ),
+            var(--nei-bg);
+
+    /* Lumo tuning scoped to this page only */
+    --lumo-border-radius-m: 12px;
+    --lumo-primary-color: var(--nei-accent);
+    --lumo-primary-text-color: var(--nei-accent);
+    --lumo-body-text-color: var(--nei-text);
+    --lumo-contrast-10pct: color-mix(in srgb, var(--nei-text) 7%, var(--nei-surface));
+    --lumo-contrast-20pct: color-mix(in srgb, var(--nei-text) 14%, transparent);
+}
+
+.nei-settings h1 {
+    margin: 0 0 4px;
+    font-family:
+            "Iowan Old Style",
+            "Palatino Linotype",
+            Palatino,
+            Georgia,
+            "Times New Roman",
+            serif;
+    font-size: 34px;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    font-weight: 700;
+    color: var(--nei-text);
+}
+
+/* ---- cards ---- */
+.nei-set-card {
+    background: var(--nei-surface);
+    border: 1px solid var(--nei-line);
+    border-radius: 18px;
+    padding: 6px 22px 16px;
+    box-shadow:
+            0 10px 30px rgba(40, 50, 30, 0.08),
+            0 2px 8px rgba(0, 0, 0, 0.04);
+    overflow: hidden;
+}
+
+.theme-dark .nei-set-card {
+    box-shadow:
+            0 14px 38px rgba(0, 0, 0, 0.45),
+            0 2px 8px rgba(0, 0, 0, 0.35);
+}
+
+.nei-appearance-card {
+    border-color: color-mix(in srgb, var(--nei-accent) 28%, var(--nei-line));
+    box-shadow:
+            0 14px 40px color-mix(in srgb, var(--nei-accent) 12%, transparent),
+            0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.nei-set-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 14px 0 10px;
+}
+
+.nei-set-head h4 {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    color: var(--nei-text);
+}
+
+/* ---- tag chips ---- */
+.nei-set-tag {
+    display: inline-flex;
+    align-items: center;
+    flex: none;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 999px;
+    border: 1px solid transparent;
+    white-space: nowrap;
+}
+
+.nei-set-tag.sync {
+    background: color-mix(in srgb, #4caf50 16%, var(--nei-surface));
+    color: color-mix(in srgb, #1b5e20 72%, var(--nei-text));
+    border-color: color-mix(in srgb, #4caf50 22%, transparent);
+}
+
+.nei-set-tag.device {
+    background: color-mix(in srgb, var(--nei-text) 8%, var(--nei-surface));
+    color: var(--nei-muted);
+    border-color: var(--nei-line);
+}
+
+.nei-set-tag.soon {
+    background: var(--nei-accent-soft);
+    color: var(--nei-accent-soft-text);
+    border-color: color-mix(in srgb, var(--nei-accent) 28%, transparent);
+}
+
+/* ---- rows ---- */
+.nei-set-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    padding: 13px 0;
+    border-top: 1px solid var(--nei-line);
+    min-width: 0;
+}
+
+.nei-set-row:last-child {
+    padding-bottom: 4px;
+}
+
+.nei-set-text {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 0;
+    font-size: 14px;
+    color: var(--nei-text);
+}
+
+.nei-set-text span:first-child {
+    font-weight: 600;
+}
+
+.nei-set-hint {
+    font-size: 12px;
+    color: var(--nei-muted);
+    line-height: 1.35;
+}
+
+.nei-set-row > *:last-child {
+    flex: 0 0 auto;
+}
+
+.nei-set-row-stack {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+}
+
+.nei-set-row-stack > *:last-child {
+    flex: 1 1 auto;
+    width: 100%;
+}
+
+/* ---- native button reset for custom controls ---- */
+button.nei-theme-card,
+button.nei-swatch,
+button.nei-seg-opt,
+button.nei-toggle {
+    font: inherit;
+    color: inherit;
+    background: transparent;
+    border: 0;
+    margin: 0;
+    padding: 0;
+    -webkit-appearance: none;
+    appearance: none;
+    cursor: pointer;
+    box-sizing: border-box;
+    text-align: inherit;
+}
+
+button.nei-theme-card:focus-visible,
+button.nei-swatch:focus-visible,
+button.nei-seg-opt:focus-visible,
+button.nei-toggle:focus-visible {
+    outline: 2px solid var(--nei-accent);
+    outline-offset: 3px;
+}
+
+/* ---- segmented controls ---- */
+.nei-seg {
+    display: inline-flex;
+    gap: 4px;
+    padding: 4px;
+    box-sizing: border-box;
+    border: 1px solid var(--nei-line);
+    border-radius: 12px;
+    background: color-mix(in srgb, var(--nei-text) 6%, var(--nei-surface));
+}
+
+.nei-seg-opt {
+    flex: 0 0 auto;
+    min-width: 92px;
+    padding: 8px 13px;
+    border-radius: 9px;
+    background: transparent;
+    color: var(--nei-muted);
+    font-size: 13px;
+    font-weight: 650;
+    transition:
+            background 0.15s ease,
+            color 0.15s ease,
+            box-shadow 0.15s ease;
+}
+
+.nei-seg-opt:hover {
+    background: color-mix(in srgb, var(--nei-text) 5%, transparent);
+    color: var(--nei-text);
+}
+
+.nei-seg-opt.on {
+    background: var(--nei-accent);
+    color: var(--nei-accent-text);
+    box-shadow: 0 2px 8px color-mix(in srgb, var(--nei-accent) 36%, transparent);
+}
+
+/* ---- toggle switches ---- */
+.nei-toggle {
+    position: relative;
+    display: inline-block;
+    flex: none;
+    width: 46px;
+    height: 26px;
+    border-radius: 999px;
+    background: var(--nei-line);
+    transition: background 0.16s ease;
+}
+
+.nei-toggle.on {
+    background: var(--nei-accent);
+}
+
+.nei-toggle-knob {
+    display: block;
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow:
+            0 1px 3px rgba(0, 0, 0, 0.25),
+            0 0 0 1px rgba(0, 0, 0, 0.04);
+    transition: transform 0.16s ease;
+}
+
+.nei-toggle.on .nei-toggle-knob {
+    transform: translateX(20px);
+}
+
+.theme-dark .nei-toggle-knob {
+    background: #f4f4f5;
+}
+
+/* ---- theme picker ---- */
+.nei-theme-picker {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(154px, 1fr));
+    gap: 12px;
+    width: 100%;
+}
+
+.nei-theme-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 9px;
+    padding: 10px;
+    border-radius: 16px;
+    border: 2px solid transparent;
+    background: color-mix(in srgb, var(--nei-text) 4%, var(--nei-surface));
+    transition:
+            transform 0.14s ease,
+            border-color 0.15s ease,
+            background 0.15s ease,
+            box-shadow 0.15s ease;
+}
+
+.nei-theme-card:hover {
+    transform: translateY(-2px);
+    border-color: color-mix(in srgb, var(--nei-accent) 35%, transparent);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
+}
+
+.nei-theme-card.sel {
+    border-color: var(--nei-accent);
+    background: var(--nei-accent-soft);
+    box-shadow: 0 12px 28px color-mix(in srgb, var(--nei-accent) 22%, transparent);
+}
+
+.nei-theme-card.sel::after {
+    content: "✓";
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    background: var(--nei-accent);
+    color: var(--nei-accent-text);
+    font-size: 12px;
+    font-weight: 900;
+    line-height: 1;
+    box-shadow: 0 2px 8px color-mix(in srgb, var(--nei-accent) 45%, transparent);
+}
+
+.nei-theme-name {
+    display: block;
+    font-size: 12.5px;
+    font-weight: 700;
+    color: var(--nei-muted);
+    text-align: center;
+}
+
+.nei-theme-card.sel .nei-theme-name {
+    color: var(--nei-text);
+}
+
+/* ---- mini window previews ---- */
+.mk-win {
+    width: 100%;
+    height: 78px;
+    border-radius: 10px;
+    padding: 8px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    overflow: hidden;
+}
+
+.mk-bar {
+    display: flex;
+    gap: 4px;
+    flex: none;
+}
+
+.mk-bar span {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+}
+
+.mk-row {
+    flex: 1;
+    display: flex;
+    gap: 7px;
+    min-height: 0;
+}
+
+.mk-side {
+    width: 30%;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.mk-side span {
+    height: 6px;
+    border-radius: 3px;
+}
+
+.mk-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.mk-main div {
+    flex: 1;
+    border-radius: 6px;
+}
+
+.mk-dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    align-self: flex-start;
+    flex: none;
+}
+
+.tc-light .mk-win {
+    background: #fff;
+    box-shadow: inset 0 0 0 1px #e4e4e4;
+}
+
+.tc-light .mk-bar span { background: #d4d4d8; }
+.tc-light .mk-side span { background: #ededf0; }
+.tc-light .mk-main div { background: #e6e6ea; }
+.tc-light .mk-dot { background: #f7c531; }
+
+.tc-dark .mk-win {
+    background: #1c1c1e;
+    box-shadow: inset 0 0 0 1px #2c2c31;
+}
+
+.tc-dark .mk-bar span { background: #3a3a3c; }
+.tc-dark .mk-side span { background: #2c2c2e; }
+.tc-dark .mk-main div { background: #333336; }
+.tc-dark .mk-dot { background: #f7c531; }
+
+.tc-warm .mk-win {
+    background: linear-gradient(150deg, #e8b84b, #f3d27a);
+    box-shadow: inset 0 0 0 1px rgba(120, 85, 20, 0.18);
+}
+
+.tc-warm .mk-bar span { background: rgba(90, 60, 10, 0.35); }
+.tc-warm .mk-side span { background: rgba(255, 255, 255, 0.5); }
+.tc-warm .mk-main div { background: rgba(255, 255, 255, 0.55); }
+.tc-warm .mk-dot { background: #7a5300; }
+
+/* ---- accent swatches ---- */
+.nei-set-row-stack .nei-swatches {
+    margin-top: 0;
+    gap: 12px;
+}
+
+.nei-swatch {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.08);
+    transition:
+            transform 0.12s ease,
+            box-shadow 0.15s ease;
+}
+
+.nei-swatch:hover {
+    transform: scale(1.12);
+}
+
+.nei-swatch.on {
+    box-shadow:
+            0 0 0 2px var(--nei-surface),
+            0 0 0 4px var(--nei-accent),
+            0 6px 16px rgba(0, 0, 0, 0.16);
+}
+
+/* ---- Vaadin fields ---- */
+.nei-settings vaadin-text-field,
+.nei-settings vaadin-select,
+.nei-settings vaadin-time-picker,
+.nei-settings vaadin-date-picker,
+.nei-settings vaadin-integer-field,
+.nei-settings vaadin-combo-box,
+.nei-settings vaadin-radio-button-group {
+    --lumo-border-radius-m: 12px;
+    --lumo-primary-color: var(--nei-accent);
+    --lumo-primary-text-color: var(--nei-accent);
+    --lumo-body-text-color: var(--nei-text);
+    --lumo-contrast-10pct: color-mix(in srgb, var(--nei-text) 7%, var(--nei-surface));
+    --lumo-contrast-20pct: color-mix(in srgb, var(--nei-text) 14%, transparent);
+}
+
+.nei-settings vaadin-combo-box {
+    min-width: 260px;
+}
+
+.nei-settings vaadin-integer-field,
+.nei-settings vaadin-time-picker {
+    min-width: 140px;
+}
+
+.nei-settings vaadin-select {
+    min-width: 180px;
+}
+
+/* ---- buttons ---- */
+.nei-set-btns {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 9px;
+    justify-content: flex-end;
+}
+
+.nei-set-btns vaadin-button {
+    margin: 0;
+    border-radius: 10px;
+    font-weight: 650;
+}
+
+.nei-set-btns vaadin-button:hover {
+    filter: brightness(0.985);
+}
+
+.nei-set-btns vaadin-button[disabled] {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* ---- sync placeholder ---- */
+.nei-settings vaadin-radio-button-group {
+    --lumo-primary-color: var(--nei-accent);
+}
+
+.nei-settings vaadin-radio-button-group [disabled],
+.nei-settings vaadin-radio-button-group [readonly] {
+    opacity: 0.55;
+}
+
+/* ---- responsive ---- */
+@media (max-width: 760px) {
+    .nei-settings {
+        padding: 22px 16px 52px;
+    }
+
+    .nei-set-card {
+        padding: 4px 16px 14px;
+    }
+
+    .nei-set-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .nei-set-row > *:last-child {
+        width: 100%;
+        flex: 1 1 auto;
+    }
+
+    .nei-seg {
+        width: 100%;
+    }
+
+    .nei-seg-opt {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .nei-settings vaadin-combo-box,
+    .nei-settings vaadin-select,
+    .nei-settings vaadin-time-picker,
+    .nei-settings vaadin-integer-field {
+        width: 100% !important;
+        min-width: 0;
+    }
+
+    .nei-set-btns {
+        justify-content: flex-start;
+    }
+}
+
+/* ---- dark-mode polish: black shadows vanish on near-black, so
+        give cards a faint light edge + deeper drop instead ---- */
+.theme-dark .nei-set-card { background: var(--nei-panel); }            /* lift cards off the #0e0e10 page */
+.theme-dark .nei-appearance-card {
+    box-shadow: 0 14px 40px rgba(0,0,0,.5),
+    0 0 0 1px color-mix(in srgb, var(--nei-accent) 18%, transparent);
+}
+.theme-dark .nei-theme-card { background: color-mix(in srgb, #fff 4%, var(--nei-surface)); }
+.theme-dark .nei-theme-card:hover {
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--nei-accent) 30%, transparent),
+    0 12px 28px rgba(0,0,0,.55);
+}
+.theme-dark .nei-theme-card.sel {
+    box-shadow: 0 0 0 1px var(--nei-accent),
+    0 14px 32px color-mix(in srgb, var(--nei-accent) 26%, transparent);
+}
+
+/* ===== focus rings: soft, and gone on mouse-click for the custom controls ===== */
+.nei-settings button:focus { outline: none; }                 /* click leaves no hard box */
+.nei-settings button:focus-visible {                           /* keyboard still gets a subtle ring */
+    outline: 2px solid color-mix(in srgb, var(--nei-accent) 55%, transparent);
+    outline-offset: 2px;
+    border-radius: 10px;
+}
+/* the selected segment already reads by its filled gold background — no extra ring */
+.nei-settings .nei-seg-opt.on:focus-visible { outline: none; }
+/* combo/select/date/time: tame Lumo's own gold focus rectangle so it matches, not shouts */
+.nei-settings vaadin-combo-box,
+.nei-settings vaadin-select,
+.nei-settings vaadin-date-picker,
+.nei-settings vaadin-time-picker,
+.nei-settings vaadin-combo-box [part="text-field"],
+.nei-settings vaadin-select [part="text-field"] {
+    --lumo-primary-color: color-mix(in srgb, var(--nei-accent) 55%, transparent);
+}

@@ -1,0 +1,24 @@
+vaadin:
+  launch-browser: false
+spring:
+  application:
+    name: Nei
+
+  datasource:
+    url: ${POSTGRES_DB:jdbc:postgresql://localhost:5001/nei_db}
+    username: ${POSTGRES_USER:postgres}
+    password: ${POSTGRES_PASSWORD:password}
+    driver-class-name: org.postgresql.Driver
+
+  #jpa
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+server:
+  port: 4000

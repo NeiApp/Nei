@@ -1,0 +1,482 @@
+﻿/* =========================================================
+   calendar.css — month grid + right day inspector.
+   Layout:
+     [ toolbar + month grid ] [ selected-day panel ]
+   The old left legend column is gone; filters are now pills
+   in the toolbar. The right panel is never dead: it always
+   shows the selected day, even when empty.
+
+   base.css is inherited via MainLayout. Category chip colours
+   are identity constants and deliberately stay literal, like
+   the calendar legend. Surfaces/borders/text use tokens.
+   Recolour/token rules sit where they win.
+   ========================================================= */
+
+/* ---- the two zones ---- */
+.nei-calendar {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 340px;
+    height: 100%;
+    background: var(--nei-bg);
+}
+
+/* ---- LEFT: toolbar + grid ---- */
+.nei-cal-main {
+    min-width: 0;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding: 18px 20px 20px;
+    box-sizing: border-box;
+}
+
+.nei-cal-toolbar {
+    flex: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    flex-wrap: wrap;
+}
+
+.nei-cal-toolbar-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+}
+
+.nei-cal-title {
+    margin-right: 6px;
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -.01em;
+    color: var(--nei-text);
+}
+
+.nei-cal-nav {
+    width: 32px;
+    height: 32px;
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    border-radius: 8px;
+    border: 1px solid var(--nei-line);
+    background: var(--nei-hover);
+    color: var(--nei-text);
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+}
+
+.nei-cal-nav vaadin-icon {
+    width: 15px;
+    height: 15px;
+}
+
+.nei-cal-nav:hover {
+    background: var(--nei-active);
+}
+
+.nei-cal-filters {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.nei-cal-filter {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 5px 11px;
+    border-radius: 999px;
+    border: 1px solid var(--nei-line);
+    background: var(--nei-surface);
+    color: var(--nei-muted);
+    font-size: 12.5px;
+    font-weight: 650;
+    cursor: pointer;
+    user-select: none;
+    transition: background .12s ease, color .12s ease, border-color .12s ease, opacity .12s ease;
+}
+
+.nei-cal-filter::before {
+    content: "";
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: var(--nei-muted);
+    flex: none;
+}
+
+.nei-cal-filter.personal::before { background: #ef6f6c; }
+.nei-cal-filter.work::before     { background: #2fb3c6; }
+.nei-cal-filter.note::before     { background: #8a6cf0; }
+
+.nei-cal-filter.on {
+    color: var(--nei-text);
+    border-color: color-mix(in srgb, var(--nei-accent) 28%, var(--nei-line));
+    background: var(--nei-accent-soft);
+}
+
+.nei-cal-filter:not(.on) {
+    opacity: .55;
+}
+
+.nei-cal-filter:hover {
+    border-color: color-mix(in srgb, var(--nei-accent) 35%, var(--nei-line));
+}
+
+/* ---- month grid ---- */
+.nei-cal-grid {
+    flex: 1;
+    min-height: 0;
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    grid-template-rows: 30px;
+    grid-auto-rows: minmax(104px, 1fr);
+    border-top: 1px solid var(--nei-line);
+    border-left: 1px solid var(--nei-line);
+    overflow: auto;
+    background: var(--nei-surface);
+}
+
+.nei-cal-dow {
+    padding: 8px 10px;
+    border-right: 1px solid var(--nei-line);
+    border-bottom: 1px solid var(--nei-line);
+    background: var(--nei-surface);
+    color: var(--nei-muted);
+    font-size: 12px;
+    font-weight: 650;
+}
+
+.nei-cal-cell {
+    min-width: 0;
+    overflow: hidden;
+    padding: 6px 6px 4px;
+    border-right: 1px solid var(--nei-line);
+    border-bottom: 1px solid var(--nei-line);
+    background: var(--nei-surface);
+    cursor: pointer;
+    transition: background .12s ease, box-shadow .12s ease;
+}
+
+.nei-cal-cell:hover {
+    background: var(--nei-hover);
+}
+
+.nei-cal-cell.out {
+    background: color-mix(in srgb, var(--nei-bg) 72%, var(--nei-surface));
+    color: var(--nei-muted);
+}
+
+.nei-cal-cell.selected {
+    background: color-mix(in srgb, var(--nei-accent) 10%, var(--nei-surface));
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--nei-accent) 35%, transparent);
+}
+
+.nei-cal-cell-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4px;
+    gap: 6px;
+}
+
+.nei-cal-num {
+    padding: 2px 7px;
+    font-size: 13px;
+    color: var(--nei-text);
+}
+
+.nei-cal-num.today {
+    background: var(--nei-accent);
+    color: var(--nei-accent-text);
+    border-radius: 8px;
+    font-weight: 700;
+}
+
+.nei-cal-add {
+    width: 22px;
+    height: 22px;
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--nei-muted);
+    opacity: 0;
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+    transition: opacity .12s ease, background .12s ease;
+}
+
+.nei-cal-add vaadin-icon {
+    width: 11px;
+    height: 11px;
+}
+
+.nei-cal-cell:hover .nei-cal-add {
+    opacity: .85;
+    background: var(--nei-active);
+}
+
+.nei-cal-add:hover {
+    opacity: 1 !important;
+    color: var(--nei-text);
+}
+
+/* ---- chips: category colours are identity constants ---- */
+.nei-cal-chip {
+    margin-top: 3px;
+    padding: 3px 7px;
+    border-radius: 6px;
+    font-size: 11px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    cursor: pointer;
+}
+
+.nei-cal-chip.personal { background: #f8d9d6; }
+.nei-cal-chip.work     { background: #cfeff3; }
+.nei-cal-chip.note     { background: #e7e1ff; }
+
+.nei-cal-chip.done {
+    text-decoration: line-through;
+    opacity: .6;
+}
+
+.nei-cal-more {
+    margin: 4px 0 0 6px;
+    color: var(--nei-muted);
+    font-size: 11px;
+}
+
+/* ---- RIGHT: day inspector ---- */
+.nei-cal-daypanel {
+    min-height: 0;
+    overflow: auto;
+    box-sizing: border-box;
+    padding: 18px 18px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    background: var(--nei-surface);
+    border-left: 1px solid var(--nei-line);
+}
+
+.nei-cal-day-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--nei-line);
+}
+
+.nei-cal-day-date {
+    min-width: 0;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--nei-text);
+    overflow-wrap: anywhere;
+}
+
+.nei-cal-day-head .nei-btn-primary {
+    flex: none;
+    height: 34px;
+    margin: 0;
+    padding: 0 13px;
+    border-radius: 10px;
+    font-size: 13px;
+}
+
+.nei-cal-day-body {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.nei-cal-day-label {
+    margin-top: 6px;
+    color: var(--nei-muted);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+}
+
+.nei-cal-day-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 9px 8px;
+    border-radius: 10px;
+    border-left: 3px solid transparent;
+    cursor: pointer;
+    transition: background .12s ease, border-color .12s ease;
+}
+
+.nei-cal-day-row:hover {
+    background: var(--nei-hover);
+}
+
+.nei-cal-day-row.selected {
+    background: var(--nei-selected);
+    border-left-color: var(--nei-accent);
+}
+
+.nei-cal-day-row vaadin-checkbox {
+    margin-top: 2px;
+}
+
+.nei-cal-day-text {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.nei-cal-day-title {
+    color: var(--nei-text);
+    font-size: 14px;
+    line-height: 1.35;
+    overflow-wrap: anywhere;
+}
+
+.nei-cal-day-row.done .nei-cal-day-title {
+    color: var(--nei-muted);
+    text-decoration: line-through;
+}
+
+.nei-cal-day-time {
+    color: var(--nei-muted);
+    font-size: 12px;
+}
+
+.nei-cal-day-note {
+    padding: 9px 10px;
+    border-radius: 10px;
+    background: var(--nei-accent-soft);
+    color: var(--nei-accent-soft-text);
+    font-size: 13px;
+    line-height: 1.45;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    cursor: pointer;
+}
+
+.nei-cal-day-note:hover {
+    background: color-mix(in srgb, var(--nei-accent) 22%, var(--nei-surface));
+}
+
+.nei-cal-day-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 28px 10px;
+    text-align: center;
+    color: var(--nei-muted);
+}
+
+.nei-cal-day-empty::before {
+    content: "";
+    width: 92px;
+    height: 62px;
+    margin-bottom: 4px;
+    background: url('../images/cat.png') center / contain no-repeat;
+    mix-blend-mode: multiply;
+    opacity: .35;
+}
+
+.theme-dark .nei-cal-day-empty::before {
+    filter: invert(1);
+    mix-blend-mode: screen;
+}
+
+.nei-cal-day-empty span:first-child {
+    color: var(--nei-text);
+    font-size: 14px;
+    font-weight: 650;
+}
+
+.nei-cal-day-empty span:last-child {
+    font-size: 12.5px;
+}
+
+/* ---- add-task dialog form ---- */
+.nei-form {
+    width: 320px;
+    max-width: 80vw;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* ---- responsive ---- */
+@media (max-width: 980px) {
+    .nei-calendar {
+        grid-template-columns: 1fr;
+        grid-template-rows: minmax(0, 1fr) auto;
+    }
+
+    .nei-cal-daypanel {
+        max-height: 46vh;
+        border-left: 0;
+        border-top: 1px solid var(--nei-line);
+    }
+}
+
+@media (max-width: 700px) {
+    .nei-cal-toolbar {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .nei-cal-grid {
+        grid-auto-rows: minmax(82px, 1fr);
+    }
+
+    .nei-cal-chip {
+        padding: 2px 5px;
+        font-size: 10px;
+    }
+
+    .nei-cal-day-head {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .nei-cal-day-head .nei-btn-primary {
+        width: 100%;
+    }
+}
+
+/* ---- theme safety / dark polish ---- */
+.theme-dark .nei-cal-grid {
+    background: var(--nei-surface);
+}
+
+.theme-dark .nei-cal-cell.selected {
+    background: color-mix(in srgb, var(--nei-accent) 14%, var(--nei-surface));
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--nei-accent) 45%, transparent);
+}
+
+.theme-dark .nei-cal-day-note {
+    background: color-mix(in srgb, var(--nei-accent) 18%, var(--nei-surface));
+}
+
+/* ===== Calendar: borderless field backgrounds in the add dialog ===== */
+.nei-form vaadin-text-field::part(input-field),
+.nei-form vaadin-select::part(input-field) {
+    background: var(--nei-panel);
+    border-radius: 12px;
+}

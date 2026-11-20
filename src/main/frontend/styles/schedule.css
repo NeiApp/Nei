@@ -1,0 +1,53 @@
+/* =========================================================
+   schedule.css — the node-graph canvas (drag + thread + flow).
+   Loaded AFTER base.css (inherited via MainLayout). base.css
+   supplies tokens, .theme-*, .nei-btn-primary/-ghost and the
+   prefers-reduced-motion shell rule; only schedule's own layout
+   + its theme-adaptive recolour live here.
+   !! The class names below are referenced by string inside
+   !! ScheduleView's client SCRIPT (.nei-node/.nei-threads/
+   !! .nei-thread/.nei-port/.nei-grip + dragging/active/done).
+   !! Relocate freely, NEVER rename.
+   Recolour at the BOTTOM so it wins, like the monolith.
+   ========================================================= */
+
+/* ---- structural ---- */
+.nei-schedule { display: flex; flex-direction: column; height: 100%; padding: 20px 24px; box-sizing: border-box; gap: 12px; }
+.nei-schedule-bar { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+.nei-schedule-bar h1 { margin: 0; font-size: 32px; }
+.nei-schedule-bar p { margin: 4px 0 0; color: var(--nei-muted); font-size: 13px; }
+.nei-now { background: #fbf4d6; padding: 6px 12px; border-radius: 10px; font-size: 13px; font-weight: 600; }
+.nei-flow-btns { margin-left: auto; display: flex; gap: 8px; }
+.nei-flow-btns vaadin-button, .nei-flow-btns button { margin: 0; }
+.nei-canvas { flex: 1; position: relative; overflow: auto; border-radius: 16px; min-height: 360px; background-color: #f6f7f4; background-image: radial-gradient(#d6d9d2 1.2px, transparent 1.2px); background-size: 22px 22px; }
+.nei-threads { position: absolute; left: 0; top: 0; width: 2400px; height: 1400px; pointer-events: none; z-index: 1; }
+.nei-thread { fill: none; stroke: #c3c6bf; stroke-width: 3; stroke-linecap: round; pointer-events: stroke; cursor: pointer; }
+.nei-thread.done { stroke: #8bd17c; }
+.nei-thread.active { stroke: var(--nei-accent); stroke-dasharray: 10 8; animation: nei-flow .7s linear infinite; }
+.nei-thread.temp { stroke: #888; stroke-dasharray: 4 6; pointer-events: none; }
+@keyframes nei-flow { to { stroke-dashoffset: -36; } }
+.nei-node { position: absolute; width: 210px; box-sizing: border-box; background: #fff; border-radius: 16px; padding: 12px 14px 12px 44px; box-shadow: 0 2px 10px rgba(0,0,0,.08); z-index: 2; transition: box-shadow .2s, transform .15s; }
+.nei-node.dragging { transform: scale(1.04); box-shadow: 0 14px 30px rgba(0,0,0,.18); }
+.nei-node.active { box-shadow: 0 0 0 3px var(--nei-accent), 0 10px 30px rgba(247,197,49,.45); animation: nei-pulse 1.6s ease-in-out infinite; }
+.nei-node.done { opacity: .6; }
+.nei-node.done .nei-node-title { text-decoration: line-through; }
+@keyframes nei-pulse { 50% { transform: scale(1.03); } }
+.nei-grip { position: absolute; left: 8px; top: 10px; width: 28px; height: 28px; display: grid; place-items: center; border-radius: 8px; cursor: grab; touch-action: none; color: #555; }
+.nei-grip:hover { background: #f0f0f0; }
+.nei-node.dragging .nei-grip { cursor: grabbing; }
+.nei-grip vaadin-icon { width: 16px; height: 16px; }
+.nei-node-title { font-weight: 600; font-size: 14px; overflow-wrap: anywhere; }
+.nei-node-meta { font-size: 12px; color: var(--nei-muted); margin-top: 3px; }
+.nei-node .nei-btn-primary { margin: 10px 0 0 -30px; width: calc(100% + 30px); height: 32px; font-size: 13px; }  /* scoped override → moves with schedule */
+.nei-port { position: absolute; top: 50%; width: 14px; height: 14px; margin-top: -7px; border-radius: 50%; background: #fff; border: 3px solid #b9bcb4; box-sizing: border-box; }
+.nei-port.in { left: -7px; }
+.nei-port.out { right: -7px; cursor: crosshair; touch-action: none; }
+.nei-port.out:hover { border-color: var(--nei-accent); transform: scale(1.2); }
+@media (prefers-reduced-motion: reduce) { .nei-thread.active, .nei-node.active { animation: none; } }
+
+/* ---- theme recolour (schedule parts only) — BOTTOM so it wins ---- */
+.nei-node{background:var(--nei-surface)}
+.nei-canvas{background-color:var(--nei-bg);background-image:radial-gradient(var(--nei-line) 1.2px,transparent 1.2px)}
+.nei-thread{stroke:var(--nei-line)} .nei-port{border-color:var(--nei-line)}
+.nei-grip{color:var(--nei-muted)} .nei-grip:hover{background:var(--nei-hover)}
+.nei-now{background:var(--nei-accent-soft)}

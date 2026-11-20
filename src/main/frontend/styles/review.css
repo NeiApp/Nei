@@ -1,0 +1,113 @@
+/* =========================================================
+   review.css — quiet technical-report layout.
+   Top rule (crumb + Week/Month) -> two columns:
+     left  = name, four readouts, one big number, Nei's read, notes, try next
+     right = spoke dial (one spoke per day / week)
+   Tiny labels over values, hairline rules, no card shadows.
+   Everything uses the app's --nei-* tokens, so themes follow.
+   ========================================================= */
+
+.nei-rv {
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+    column-gap: 64px;
+    row-gap: 26px;
+    align-content: start;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 28px 32px 56px;
+    box-sizing: border-box;
+    min-height: 100%;
+    background: var(--nei-bg);
+    color: var(--nei-text);
+    font-variant-numeric: tabular-nums;
+}
+
+/* ---- top rule ---- */
+.nei-rv-top {
+    grid-column: 1 / -1;
+    display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--nei-line);
+}
+.nei-rv-crumb { font-size: 12px; color: var(--nei-muted); }
+.nei-rv-tabs { display: flex; gap: 18px; }
+.nei-rv-tab {
+    padding: 2px 0; font-size: 12.5px; color: var(--nei-muted); cursor: pointer; user-select: none;
+    border-bottom: 1.5px solid transparent; transition: color .12s, border-color .12s;
+}
+.nei-rv-tab:hover { color: var(--nei-text); }
+.nei-rv-tab.on { color: var(--nei-text); font-weight: 650; border-bottom-color: var(--nei-accent); }
+
+/* ---- left column ---- */
+.nei-rv-left { display: flex; flex-direction: column; gap: 26px; min-width: 0; }
+
+.nei-rv-name { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 12px; }
+.nei-rv-title { font-size: 20px; font-weight: 700; letter-spacing: -.01em; }
+.nei-rv-range { font-size: 14px; color: var(--nei-muted); }
+
+.nei-rv-readouts { display: flex; flex-wrap: wrap; gap: 14px 40px; }
+.nei-rv-ro { display: flex; flex-direction: column; gap: 3px; }
+.nei-rv-ro-l { font-size: 11px; color: var(--nei-muted); }
+.nei-rv-ro-v { font-size: 20px; font-weight: 600; }
+
+/* the one big number */
+.nei-rv-big { display: flex; flex-direction: column; gap: 12px; padding-top: 22px; border-top: 1px solid var(--nei-line); }
+.nei-rv-bigrow { display: flex; align-items: center; gap: 14px; }
+.nei-rv-mark { flex: none; width: 4px; height: 36px; border-radius: 1px; background: var(--nei-accent); }
+.nei-rv-pct { font-size: 46px; font-weight: 700; letter-spacing: -.02em; line-height: 1; }
+.nei-rv-pct-sign { margin-left: 2px; font-size: 22px; font-weight: 600; }
+.nei-rv-pct-note { font-size: 12.5px; color: var(--nei-muted); align-self: flex-end; padding-bottom: 4px; }
+.nei-rv-track { height: 2px; background: var(--nei-line); }
+.nei-rv-fill { height: 100%; background: var(--nei-accent); transition: width .4s ease; }
+
+/* Nei's read */
+.nei-rv-read { font-size: 15.5px; line-height: 1.6; }
+.nei-rv-tag { margin-right: 8px; font-weight: 700; }
+.nei-rv-sign { margin-top: 6px; font-size: 11.5px; color: var(--nei-muted); }
+
+/* notes: small square markers, no boxes */
+.nei-rv-notes { display: flex; flex-direction: column; gap: 18px; }
+.nei-rv-label { display: block; margin-bottom: 6px; font-size: 11.5px; color: var(--nei-muted); }
+.nei-rv-note { position: relative; padding: 4px 0 4px 16px; font-size: 13.5px; line-height: 1.45; }
+.nei-rv-note::before {
+    content: ""; position: absolute; left: 0; top: 10px;
+    width: 6px; height: 6px; border-radius: 1px; background: var(--nei-muted);
+}
+.nei-rv-note.good::before { background: #8bd17c; }
+.nei-rv-note.warn::before { background: #ef8f6a; }
+.nei-rv-note.muted { color: var(--nei-muted); }
+.nei-rv-note.muted::before { display: none; }
+.nei-rv-note.muted { padding-left: 0; }
+
+/* try next */
+.nei-rv-try { display: flex; align-items: flex-start; gap: 12px; padding-top: 18px; border-top: 1px solid var(--nei-line); }
+.nei-rv-try-box {
+    flex: none; width: 34px; height: 34px; display: grid; place-items: center;
+    border: 1px solid var(--nei-line); border-radius: 6px; color: var(--nei-text);
+}
+.nei-rv-try-box vaadin-icon { width: 15px; height: 15px; }
+.nei-rv-try-col { display: flex; flex-direction: column; min-width: 0; }
+.nei-rv-try-text { font-size: 14px; line-height: 1.5; }
+
+/* ---- right column ---- */
+.nei-rv-right { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.nei-rv-chart-head { display: flex; flex-direction: column; gap: 2px; }
+.nei-rv-chart-title { font-size: 15px; font-weight: 700; }
+.nei-rv-chart-sub { font-size: 12px; color: var(--nei-muted); }
+
+.nei-rv-dial svg { display: block; width: 100%; max-width: 400px; height: auto; overflow: visible; }
+.nei-rv-dial .rv-ring { fill: none; stroke: var(--nei-line); stroke-width: 1; }
+.nei-rv-dial .rv-ring.dash { stroke-dasharray: 2 5; }
+.nei-rv-dial .rv-spoke { stroke: var(--nei-muted); stroke-opacity: .5; stroke-width: 5; stroke-linecap: round; }
+.nei-rv-dial .rv-spoke.top { stroke: var(--nei-accent); stroke-opacity: 1; }
+.nei-rv-dial .rv-num { fill: var(--nei-muted); font-size: 11px; font-weight: 600; }
+.nei-rv-dial .rv-num.top { fill: var(--nei-text); }
+.nei-rv-dial .rv-lab { fill: var(--nei-muted); font-size: 11px; }
+.nei-rv-dial .rv-center { fill: var(--nei-text); font-size: 26px; font-weight: 700; }
+.nei-rv-dial .rv-center-sub { fill: var(--nei-muted); font-size: 10px; }
+
+/* ---- responsive ---- */
+@media (max-width: 900px) {
+    .nei-rv { grid-template-columns: 1fr; padding: 20px 16px 44px; }
+}

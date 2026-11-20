@@ -1,0 +1,395 @@
+/* =========================================================
+   welcome.css — warm, paper-inspired welcome screen.
+   The background stays subtle so the welcome card remains
+   the focus, and the layout adapts to resized app windows.
+   ========================================================= */
+
+.nei-welcome.nei-desk {
+    min-height: 100vh;  /* Fallback for browsers without dvh */
+    min-height: 100dvh;
+    box-sizing: border-box;
+    display: grid;
+    place-items: center;
+    padding: clamp(24px, 5vh, 56px) 20px;
+    overflow: auto;
+    background:
+            radial-gradient(
+                    ellipse at 50% 10%,
+                    color-mix(in srgb, var(--nei-accent) 12%, transparent),
+                    transparent 58%
+            ),
+            var(--nei-bg);
+}
+
+.theme-dark .nei-welcome.nei-desk {
+    background:
+            radial-gradient(
+                    ellipse at 50% 10%,
+                    color-mix(in srgb, var(--nei-accent) 8%, transparent),
+                    transparent 58%
+            ),
+            var(--nei-bg);
+}
+
+/* Welcome card */
+.nei-sheet {
+    position: relative;
+    width: min(600px, 94vw);
+    padding: 34px 44px 42px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    text-align: center;
+
+    background-color: var(--nei-surface);
+    background-image: repeating-linear-gradient(
+            to bottom,
+            transparent 0 31px,
+            color-mix(in srgb, var(--nei-text) 4%, transparent) 31px 32px
+    );
+
+    border: 1px solid var(--nei-line);
+    border-radius: 18px;
+    box-shadow:
+            0 30px 70px rgba(40, 50, 30, 0.20),
+            0 4px 12px rgba(0, 0, 0, 0.08);
+
+    animation: nei-sheet-in 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.theme-dark .nei-sheet {
+    box-shadow:
+            0 30px 70px rgba(0, 0, 0, 0.6),
+            0 4px 12px rgba(0, 0, 0, 0.45);
+}
+
+/* Decorative tape — thicker, glossier strips gripping the top edge */
+.nei-sheet::before,
+.nei-sheet::after {
+    content: "";
+    position: absolute;
+    top: -14px;
+    width: 92px;
+    height: 24px;
+    border: 1px solid color-mix(in srgb, var(--nei-accent) 38%, transparent);
+    border-radius: 2px;
+    background: linear-gradient(
+            to bottom,
+            color-mix(in srgb, var(--nei-accent) 82%, #fff) 0%,
+            color-mix(in srgb, var(--nei-accent) 60%, #fff) 46%,
+            color-mix(in srgb, var(--nei-accent) 40%, #fff) 100%
+    );
+    opacity: 0.95;
+    box-shadow:
+            0 4px 9px rgba(0, 0, 0, 0.24),
+            0 1px 2px rgba(0, 0, 0, 0.18),
+            inset 0 2px 0 rgba(255, 255, 255, 0.6),
+            inset 0 -2px 0 rgba(0, 0, 0, 0.1);
+    mix-blend-mode: multiply;
+    pointer-events: none;
+}
+
+.nei-sheet::before {
+    left: 24px;
+    transform: rotate(-4deg);
+}
+
+.nei-sheet::after {
+    right: 24px;
+    transform: rotate(4deg);
+}
+
+.theme-dark .nei-sheet::before,
+.theme-dark .nei-sheet::after {
+    opacity: 0.74;
+    box-shadow:
+            0 4px 10px rgba(0, 0, 0, 0.55),
+            0 1px 2px rgba(0, 0, 0, 0.4),
+            inset 0 2px 0 rgba(255, 255, 255, 0.3),
+            inset 0 -2px 0 rgba(0, 0, 0, 0.25);
+    mix-blend-mode: screen;
+}
+
+/* Cat illustration */
+.nei-cat {
+    width: min(300px, 80%);
+    aspect-ratio: 8 / 5;
+    margin: 4px 0 6px;
+    background: url("../images/cat.png") center / contain no-repeat;
+    mix-blend-mode: multiply;
+    animation: nei-cat-in 0.6s 0.12s ease both;
+}
+
+.theme-dark .nei-cat {
+    filter: invert(1);
+    mix-blend-mode: screen;
+}
+
+/* Welcome heading and copy */
+.nei-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    margin-top: 2px;
+    color: var(--nei-muted);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+}
+
+.nei-eyebrow::before {
+    content: "";
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--nei-accent);
+    box-shadow: 0 0 0 3px
+    color-mix(in srgb, var(--nei-accent) 24%, transparent);
+}
+
+.nei-sheet h1 {
+    margin: 6px 0 0;
+    color: var(--nei-text);
+    font-family:
+            "Iowan Old Style",
+            "Palatino Linotype",
+            Palatino,
+            Georgia,
+            "Times New Roman",
+            serif;
+    font-size: 33px;
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: -0.01em;
+}
+
+.nei-sheet > p {
+    max-width: 42ch;
+    margin: 8px 0 2px;
+    color: var(--nei-muted);
+    font-size: 14.5px;
+    line-height: 1.55;
+}
+
+/* Sample day tabs */
+.nei-daytabs {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+    margin: 14px 0 6px;
+}
+
+.nei-tab {
+    position: relative;
+    display: inline-flex;
+    align-items: baseline;
+    gap: 7px;
+    padding: 8px 13px 9px;
+    border: 1px solid var(--nei-line);
+    border-radius: 10px;
+    background: color-mix(in srgb, var(--nei-accent) 9%, var(--nei-surface));
+    box-shadow: 0 2px 6px rgba(40, 50, 30, 0.08);
+    color: var(--nei-text);
+    font-size: 12.5px;
+}
+
+.nei-tab .t {
+    color: var(--nei-accent-soft-text);
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+}
+
+.nei-tab .l {
+    color: var(--nei-muted);
+}
+
+.nei-tab::before {
+    content: "";
+    position: absolute;
+    top: -5px;
+    left: 50%;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: var(--nei-accent);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+    transform: translateX(-50%);
+}
+
+.nei-tab:nth-child(1) {
+    transform: rotate(-1.6deg);
+}
+
+.nei-tab:nth-child(2) {
+    transform: rotate(0.8deg);
+}
+
+.nei-tab:nth-child(3) {
+    transform: rotate(1.4deg);
+}
+
+/* Name field */
+.nei-sheet vaadin-text-field {
+    width: 100%;
+    --lumo-contrast-10pct:
+            color-mix(in srgb, var(--nei-text) 6%, var(--nei-surface));
+    --lumo-contrast-20pct:
+            color-mix(in srgb, var(--nei-text) 14%, transparent);
+    --lumo-primary-color: var(--nei-accent);
+    --lumo-primary-text-color: var(--nei-accent);
+    --lumo-body-text-color: var(--nei-text);
+    --lumo-border-radius-m: 12px;
+    text-align: left;
+}
+
+/* Week-start segmented control */
+.nei-segweek-label {
+    width: 100%;
+    margin: 14px 0 6px;
+    color: var(--nei-muted);
+    font-size: 12px;
+    font-weight: 600;
+    text-align: left;
+}
+
+.nei-segweek {
+    display: inline-flex;
+    gap: 4px;
+    width: 100%;
+    padding: 4px;
+    box-sizing: border-box;
+    border: 1px solid var(--nei-line);
+    border-radius: 12px;
+    background: color-mix(in srgb, var(--nei-text) 6%, var(--nei-surface));
+}
+
+.nei-segopt {
+    flex: 1;
+    margin: 0;
+    padding: 9px 10px;
+    border: 0;
+    border-radius: 9px;
+    background: transparent;
+    box-shadow: none;
+    color: var(--nei-muted);
+    font-size: 13.5px;
+    font-weight: 600;
+    cursor: pointer;
+    --lumo-primary-text-color: var(--nei-muted);
+    --lumo-body-text-color: var(--nei-muted);
+    transition:
+            background 0.15s ease,
+            color 0.15s ease,
+            box-shadow 0.15s ease;
+}
+
+.nei-segopt:hover {
+    background: color-mix(in srgb, var(--nei-text) 5%, transparent);
+    color: var(--nei-text);
+    --lumo-primary-text-color: var(--nei-text);
+    --lumo-body-text-color: var(--nei-text);
+}
+
+.nei-segopt.on {
+    background: var(--nei-accent);
+    color: var(--nei-accent-text);
+    box-shadow: 0 2px 8px
+    color-mix(in srgb, var(--nei-accent) 40%, transparent);
+    --lumo-primary-text-color: var(--nei-accent-text);
+    --lumo-body-text-color: var(--nei-accent-text);
+}
+
+.nei-segopt:focus-visible {
+    outline: 2px solid var(--nei-accent);
+    outline-offset: 2px;
+}
+
+/* Primary action */
+.nei-sheet .nei-btn-primary {
+    height: 46px;
+    margin-top: 14px;
+    border-radius: 12px;
+    box-shadow: 0 8px 22px
+    color-mix(in srgb, var(--nei-accent) 40%, transparent);
+    font-size: 15px;
+    transition:
+            transform 0.15s ease,
+            box-shadow 0.15s ease;
+}
+
+.nei-sheet .nei-btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 12px 28px
+    color-mix(in srgb, var(--nei-accent) 52%, transparent);
+}
+
+.nei-sheet .nei-btn-primary:focus-visible {
+    outline: 2px solid var(--nei-accent);
+    outline-offset: 3px;
+}
+
+.nei-sheet .nei-btn-primary vaadin-icon {
+    transition: transform 0.15s ease;
+}
+
+.nei-sheet .nei-btn-primary:hover vaadin-icon {
+    transform: translateX(3px);
+}
+
+.nei-form-hint {
+    margin-top: 12px;
+    color: var(--nei-muted);
+    font-size: 12px;
+}
+
+/* Animations */
+@keyframes nei-sheet-in {
+    from {
+        opacity: 0;
+        transform: translateY(14px) scale(0.99);
+    }
+}
+
+@keyframes nei-cat-in {
+    from {
+        opacity: 0;
+        transform: translateY(8px) scale(0.96);
+    }
+}
+
+/* Respect users who prefer reduced motion */
+@media (prefers-reduced-motion: reduce) {
+    .nei-sheet,
+    .nei-cat {
+        animation: none;
+    }
+
+    .nei-segopt,
+    .nei-sheet .nei-btn-primary,
+    .nei-sheet .nei-btn-primary vaadin-icon {
+        transition: none;
+    }
+}
+
+/* Smaller windows */
+@media (max-width: 560px) {
+    .nei-sheet {
+        padding: 24px 22px 30px;
+    }
+
+    .nei-cat {
+        width: 84%;
+    }
+
+    .nei-sheet h1 {
+        font-size: 28px;
+    }
+
+    .nei-sheet::before,
+    .nei-sheet::after {
+        width: 60px;
+    }
+}

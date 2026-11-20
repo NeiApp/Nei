@@ -1,0 +1,35 @@
+vaadin:
+  launch-browser: false
+spring:
+  application:
+    name: Nei
+
+  #h2-console
+  h2:
+    enabled: true
+    path: /h2-console
+    settings:
+      web-allow-others: false
+
+# roadmap #1 done: H2 now keeps its data in ./data/nei.mv.db, so tasks and settings survive a restart.
+# (back to throw-away data: use  jdbc:h2:mem:testdb  here)
+ #datasource
+  datasource:
+    url: jdbc:h2:file:./data/nei
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: password
+
+ #jpa
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+server:
+  port: 0
+  address: 127.0.0.1

@@ -1,0 +1,21 @@
+/* =========================================================
+   components.css — reusable DOMAIN widgets used by 2+ views.
+   NOT global chrome (base.css), NOT single-view layout (<view>.css).
+   Loaded BEFORE the view slice so a view can override a component.
+   Members: palette dot (.nei-cdot) + swatch row (.nei-swatches)
+   [Notes + Settings], and the card shell (.nei-card) [Review + Settings].
+   Add a widget here the moment a SECOND view uses it; until then it
+   stays in its single owner's slice (.nei-round / .nei-form promotion rule).
+   ========================================================= */
+
+/* ---- palette / accent dot ---- */
+.nei-cdot { width: 18px; height: 18px; border-radius: 50%; cursor: pointer; display: inline-block; transition: transform .15s; }
+.nei-cdot:hover { transform: scale(1.25); }
+.nei-cdot.on { outline: 2px solid #111; outline-offset: 3px; }   /* component-local constant → lives here, not base */
+
+/* ---- swatch row container ---- */
+.nei-swatches { display: flex; gap: 14px; margin-top: 14px; }
+
+/* ---- card shell (Review ring/chart/lists + Settings cards) ---- */
+.nei-card { background: var(--nei-panel); border-radius: 20px; padding: 20px; }
+.nei-card h4 { margin: 0 0 14px; font-size: 14px; }

@@ -1,0 +1,153 @@
+/* =========================================================
+   notes.css — list + editor split (a real notes app, not a card grid).
+   Left column = scannable list (search + colour filters + rows).
+   Right column = the persistent NoteEditor component.
+   Per-row / per-editor colour is driven by an inline --note-tint set
+   from Java; a transparent default is declared here so the IDE stops
+   flagging "cannot resolve --note-tint" (the value is real at runtime,
+   Java just sets it inline, which the static analyzer can't see).
+   .nei-cdot / .nei-swatches are shared (components.css); bare .nei-note
+   is TodayView's (today.css). Recolour sits at the BOTTOM so it wins.
+   ========================================================= */
+
+/* ---- the split ---- */
+.nei-notes {
+    --note-tint: transparent;          /* default; Java overrides per-row / per-editor inline */
+    display: grid;
+    grid-template-columns: 320px minmax(0, 1fr);
+    height: 100%;
+    background: var(--nei-bg);
+}
+
+/* ---- LEFT: list column ---- */
+.nei-note-listcol {
+    display: flex; flex-direction: column; min-height: 0;
+    background: var(--nei-surface);
+    border-right: 1px solid var(--nei-line);
+}
+.nei-note-top {
+    padding: 18px 16px 12px; display: flex; flex-direction: column; gap: 12px;
+    border-bottom: 1px solid var(--nei-line);
+}
+.nei-note-headrow { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.nei-note-headrow h1 { font-size: 26px; margin: 0; letter-spacing: -.01em; }
+.nei-note-newbtn { height: 34px; padding: 0 14px; border-radius: 10px; font-size: 13px; }
+.nei-note-toolsrow { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.nei-note-search { flex: 1; min-width: 140px; --vaadin-input-field-background: #f0f0f0; --lumo-contrast-10pct: #ececec; }
+.nei-note-dots { display: flex; align-items: center; gap: 10px; }
+
+.nei-note-list { flex: 1; min-height: 0; overflow: auto; padding: 8px; display: flex; flex-direction: column; gap: 4px; }
+.nei-note-list .nei-empty { padding: 28px 12px; text-align: center; }
+
+.nei-note-row {
+    display: flex; flex-direction: column; gap: 3px;
+    padding: 10px 12px 10px 13px; border-radius: 12px; cursor: pointer;
+    border-left: 4px solid var(--note-tint, transparent);
+    background: transparent; transition: background .12s ease;
+}
+.nei-note-row:hover { background: var(--nei-hover); }
+.nei-note-row.sel { background: color-mix(in srgb, var(--note-tint) 16%, var(--nei-surface)); }
+.nei-note-rowtop { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+.nei-note-snippet {
+    font-size: 14px; font-weight: 650; color: var(--nei-text);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0;
+}
+.nei-note-date { font-size: 11px; color: var(--nei-muted); flex: none; }
+.nei-note-rowsub { display: flex; align-items: center; gap: 7px; min-width: 0; }
+.nei-note-sub {
+    font-size: 12px; color: var(--nei-muted);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; flex: 1;
+}
+.nei-note-tasktag {
+    flex: none; font-size: 10px; font-weight: 700; letter-spacing: .02em;
+    color: var(--nei-accent-soft-text); background: var(--nei-accent-soft);
+    padding: 1px 7px; border-radius: 6px;
+}
+.nei-note-starspan { flex: none; display: inline-grid; place-items: center; color: var(--nei-accent); }
+.nei-note-starspan vaadin-icon { width: 13px; height: 13px; }
+
+/* ---- RIGHT: the editor component ---- */
+.nei-note-editor {
+    position: relative; min-height: 0; display: flex; flex-direction: column;
+    background: color-mix(in srgb, var(--note-tint, transparent) 9%, var(--nei-bg));
+}
+.nei-ed-head { display: flex; align-items: center; gap: 8px; padding: 16px 20px 6px; }
+.nei-ed-back { display: none; }                 /* only shown on narrow screens */
+.nei-ed-date { flex: 1; font-size: 12px; color: var(--nei-muted); }
+.nei-ed-star.star-on vaadin-icon { color: var(--nei-accent); }
+
+.nei-ed-banner {
+    margin: 4px 20px 0; padding: 8px 12px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    font-size: 12.5px; color: var(--nei-accent-soft-text); background: var(--nei-accent-soft);
+}
+.nei-ed-bannerbtn { height: 28px; padding: 0 12px; border-radius: 8px; font-size: 12px;
+    background: var(--nei-surface); border: 1px solid var(--nei-line); cursor: pointer; }
+
+.nei-ed-body { flex: 1; min-height: 0; }
+
+/* the writing surface: no box, no border, and crucially NO gold focus
+   rectangle on click. Lumo paints that ring on ::part(input-field) using
+   --lumo-primary-color (your accent), so we both zero the var locally AND
+   kill the part's box-shadow/border/outline directly — version-proof.
+   The caret stays gold (set on ::part(textarea) below), so it still feels alive. */
+.nei-note-editor vaadin-text-area {
+    --vaadin-input-field-background: transparent;
+    --vaadin-input-field-border-width: 0;
+    --vaadin-input-field-border-color: transparent;
+    --vaadin-input-field-highlight-background: transparent;
+    --vaadin-input-field-focus-ring: none;     /* Lumo's own focus hook */
+    --lumo-primary-color: transparent;         /* zeroes the gold focus box-shadow */
+    --lumo-body-text-color: var(--nei-text);
+}
+.nei-note-editor vaadin-text-area::part(input-field),
+.nei-note-editor vaadin-text-area::part(input-field):focus-within,
+.nei-note-editor vaadin-text-area:focus-within::part(input-field) {
+    box-shadow: none; border: 0; background: transparent; outline: none;
+}
+.nei-note-editor vaadin-text-area:focus-visible { outline: none; }   /* host guard */
+
+.nei-note-editor vaadin-text-area::part(textarea) {
+    font-size: 16px; line-height: 1.65; color: var(--nei-text);
+    padding: 8px 22px 16px; caret-color: var(--nei-accent);
+}
+
+.nei-ed-foot {
+    display: flex; align-items: center; gap: 14px; padding: 10px 22px 18px;
+    border-top: 1px solid color-mix(in srgb, var(--nei-text) 8%, transparent);
+}
+.nei-ed-swatches { margin: 0; }
+
+.nei-ed-empty {
+    position: absolute; inset: 0; z-index: 2;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px;
+    color: var(--nei-muted); font-size: 14px;
+    background: var(--nei-bg);
+}
+.nei-ed-empty-cat {
+    width: 130px; height: 86px;
+    background: url('../images/cat.png') center / contain no-repeat;
+    mix-blend-mode: multiply; opacity: .45;
+}
+.is-hidden { display: none !important; }
+
+/* round icon buttons (back / star / delete) — themed, was a fixed #111 */
+.nei-round {
+    width: 34px; height: 34px; min-width: 0; flex: none; border-radius: 50%;
+    background: var(--nei-hover); color: var(--nei-text);
+    border: 1px solid var(--nei-line); margin: 0; padding: 0; cursor: pointer;
+}
+.nei-round vaadin-icon { width: 16px; height: 16px; }
+.nei-round:hover { background: var(--nei-active); }
+
+/* ---- narrow fallback: stack list over editor (rare on a 920px-min desktop) ---- */
+@media (max-width: 760px) {
+    .nei-notes { grid-template-columns: 1fr; grid-template-rows: 230px minmax(0, 1fr); }
+    .nei-note-listcol { border-right: 0; border-bottom: 1px solid var(--nei-line); }
+    .nei-ed-back { display: inline-grid; }
+}
+
+/* ---- theme recolour (notes parts only) — BOTTOM so it wins ---- */
+.nei-note-search { --vaadin-input-field-background: var(--nei-panel); }
+.theme-dark .nei-ed-empty-cat { filter: invert(1); mix-blend-mode: screen; }
+/* dark ink for .nei-note-card/.nei-note-chip stays in base.css (cross-view CONSTANT policy) */

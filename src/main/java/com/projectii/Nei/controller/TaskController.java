@@ -34,7 +34,7 @@ public class TaskController {
     }
 
 
-    @PatchMapping("/add-subtasks/{taskId}")
+    @PatchMapping("{taskId}/add-subtasks/")
     public ResponseEntity<CreatedTask> addSubtasks (@PathVariable UUID taskId,@RequestBody List<SubTaskRequest> subTaskRequest){
         return ResponseEntity.ok(taskService.addSubTasks(taskId,subTaskRequest));
     }

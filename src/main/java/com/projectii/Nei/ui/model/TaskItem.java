@@ -6,12 +6,13 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * UI view-model for a task. Public fields on purpose while this is mock data.
- * When the backend is real, map {@code model.Task} to this (or turn it into a record).
- * Fields marked NEW do not exist on the backend Task entity yet.
+ * UI view-model for a task. Public fields on purpose.
+ * The real TaskUiServiceImpl maps {@code model.Task} to this and hands out the SAME instance for the same task,
+ * because the views compare tasks with == (selected, running, next).
  */
 public class TaskItem {
-    public final String id = UUID.randomUUID().toString(); // backend: UUID
+    /** Backend task UUID as text. New items start with a throwaway id; the real service replaces it in add(). */
+    public String id = UUID.randomUUID().toString();
     public String title;
     public String description = "";   // backend: exists, but no way to edit it
     public String list;               // NEW: "Personal" | "Work"

@@ -3,7 +3,7 @@ package com.projectii.Nei.ui.app;
 import com.projectii.Nei.service.serviceImpl.AlarmBroadcaster;
 import com.projectii.Nei.ui.service.SettingsUiService;
 import com.projectii.Nei.ui.shared.Appearance;
-import com.projectii.Nei.ui.welcome.WelcomeView;   // << ADDED: type-safe forward target
+import com.projectii.Nei.ui.welcome.WelcomeView;
 import com.vaadin.flow.component.*;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dependency.CssImport;
@@ -18,7 +18,6 @@ import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.RouterLayout;
 import com.vaadin.flow.shared.Registration;
-import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -27,7 +26,7 @@ import java.util.Map;
 
 /**
  * The window frame: icon rail on the left, the current page on the right, a status bar at the bottom.
- * Alt+1 ... Alt+6 jump between pages.
+ * Alt+1 ... Alt+7 jump between pages.
  */
 @CssImport("./styles/base.css")
 @CssImport("./styles/rail.css")
@@ -48,10 +47,11 @@ public class MainLayout extends Div implements RouterLayout, BeforeEnterObserver
         Div rail = new Div();
         rail.addClassName("nei-rail");
 
-        // brand tile — recolours with the accent, ties the rail to the welcome mark
         Div brand = new Div(new Span("N"));
         brand.addClassName("nei-rail-brand");
         brand.getElement().setAttribute("title", "Nei");
+
+        // (brand Div removed from the rail)
 
         Div top = new Div(
                 railBtn(VaadinIcon.COFFEE, "Focus", null),
@@ -63,11 +63,11 @@ public class MainLayout extends Div implements RouterLayout, BeforeEnterObserver
                 railBtn(VaadinIcon.MAGIC, "Ask Nei", null),
                 railBtn(VaadinIcon.ELLIPSIS_DOTS_H, "More", null));
         Div bottom = new Div(
-                railBtn(VaadinIcon.CHECK, "Completed", null),
+                railBtn(VaadinIcon.CHECK, "Completed (Alt+7)", "completed"),   // CHANGED: now routes to CompletedView
                 railBtn(VaadinIcon.COG_O, "Settings (Alt+6)", "settings"));
         top.addClassName("nei-rail-group");
         bottom.addClassName("nei-rail-group");
-        rail.add(brand, top, bottom);
+        rail.add(top, bottom);   // was: rail.add(brand, top, bottom)
 
         content.addClassName("nei-content");
         Div body = new Div(rail, content);
@@ -80,6 +80,7 @@ public class MainLayout extends Div implements RouterLayout, BeforeEnterObserver
         shortcut(Key.DIGIT_4, "schedule");
         shortcut(Key.DIGIT_5, "review");
         shortcut(Key.DIGIT_6, "settings");
+        shortcut(Key.DIGIT_7, "completed");   // NEW
         Appearance.apply(this, settings.device());
     }
 
@@ -126,7 +127,7 @@ public class MainLayout extends Div implements RouterLayout, BeforeEnterObserver
     /** Nobody gets past the welcome screen without a name. */
     @Override
     public void beforeEnter(BeforeEnterEvent event) {
-        if (settings.account().userName == null) event.forwardTo(WelcomeView.class);   // << CHANGED: was forwardTo("welcome")
+        if (settings.account().userName == null) event.forwardTo(WelcomeView.class);
     }
 
     @Override

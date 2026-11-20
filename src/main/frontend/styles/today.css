@@ -1,14 +1,10 @@
 /* =========================================================
    today.css — two-zone daily board: list hero + smart inspector.
-   The old left menu column is GONE (its real jobs — search, list
-   filter, count, overload, greeting — moved into .nei-today-bar;
-   its nav rows were duplicates of the global rail). The right
-   pane is an inspector that is never dead: empty state = a
-   "Today at a glance" summary, selected state = a sectioned editor.
+   Left: bar (greeting, search, filter, count) + add line + minimal
+   task list. Right: inspector that is never dead (empty state =
+   "Today at a glance", selected state = sectioned editor).
    base.css is inherited via MainLayout. .nei-warn / .nei-btn-* /
    .nei-empty are global primitives (base.css), used here, not owned.
-   The two .nei-note rules are today's (detail-pane note box).
-   Recolour sits at the BOTTOM so it wins.
    ========================================================= */
 
 /* ---- the two zones ---- */
@@ -53,77 +49,46 @@
 }
 .nei-over { font-size: 12px; font-weight: 700; color: #8a3a1c; background: #fde9e1; padding: 4px 9px; border-radius: 8px; }
 
-/* ---- add row ---- */
+/* ---- add row: just a faint line, Enter adds the task ---- */
 .nei-add-row {
     flex: none;
     display: flex;
     align-items: center;
     gap: 10px;
-    margin: 0 4px 12px;
+    margin: 0 4px 8px;
 }
-
-.nei-add-row vaadin-text-field {
-    flex: 1;
-    min-width: 0;
-}
-
-.nei-add {
-    --vaadin-input-field-background: var(--nei-panel);
-}
-
-.nei-add-btn {
-    flex: none;
-    width: 40px;
-    height: 40px;
-    min-width: 0;
-    margin: 0;
-    padding: 0;
-    border: 0 !important;
-    border-radius: 50%;
-    background: var(--nei-accent) !important;
-    color: var(--nei-accent-text) !important;
-    cursor: pointer;
-    display: grid;
-    place-items: center;
-    box-shadow: 0 4px 12px color-mix(in srgb, var(--nei-accent) 38%, transparent);
-    transition: transform .12s ease, box-shadow .12s ease;
-}
-
-.nei-add-btn vaadin-icon {
-    width: 18px;
-    height: 18px;
-    color: inherit;
-}
-
-.nei-add-btn:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 7px 18px color-mix(in srgb, var(--nei-accent) 48%, transparent);
-}
-
-.nei-reduce-motion .nei-add-btn:hover {
-    transform: none;
-}
+.nei-add-row vaadin-text-field { flex: 1; min-width: 0; }
+.nei-add { --vaadin-input-field-background: transparent; }
+.nei-add input::placeholder { color: var(--nei-muted); opacity: .6; }
+.nei-add-btn { display: none; } /* Enter already adds; safe to delete the button in Java too */
 
 /* ---- task list ---- */
-.nei-task-list { flex: 1; min-height: 0; overflow: auto; padding: 0 4px; display: flex; flex-direction: column; gap: 2px; }
+.nei-task-list { flex: 1; min-height: 0; overflow: auto; padding: 0 4px; display: flex; flex-direction: column; gap: 0; }
 .nei-task-list .nei-empty { padding: 32px 8px; text-align: center; }
 
-/* ---- task rows: open first, done sink; selected gets an accent bar (ties to Notes) ---- */
+/* ---- task rows: flat, open first, done sink ---- */
 .nei-task {
-    display: flex; align-items: flex-start; gap: 10px;
-    padding: 11px 10px; border-radius: 12px; cursor: pointer;
-    border-left: 3px solid transparent;
-    transition: background .12s ease, border-color .12s ease;
+    display: flex; align-items: center; gap: 14px;
+    padding: 10px 8px; border-radius: 10px; cursor: pointer;
+    background: transparent;
+    transition: background .12s ease;
 }
-.nei-task:hover { background: var(--nei-hover); }
-.nei-task.selected { background: var(--nei-selected); border-left-color: var(--nei-accent); }
-.nei-task vaadin-checkbox { margin-top: 1px; }
-.nei-task-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 5px; }
-.nei-task-title { font-size: 14.5px; color: var(--nei-text); line-height: 1.35; overflow-wrap: anywhere; }
+.nei-task.selected { background: var(--nei-hover); }
+.nei-task.done { opacity: .5; }
 .nei-task.done .nei-task-title { text-decoration: line-through; color: var(--nei-muted); }
-.nei-task.done { opacity: .62; }
 
-.nei-task-flags { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; }
+/* title left, flags right (shown on hover / selected) */
+.nei-task-body { flex: 1; min-width: 0; display: flex; flex-direction: row; align-items: center; gap: 12px; }
+.nei-task-title { flex: 1; min-width: 0; font-size: 15px; color: var(--nei-text); line-height: 1.35; overflow-wrap: anywhere; }
+
+.nei-task-flags {
+    flex: none; margin-left: auto;
+    display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px;
+    opacity: 0; transition: opacity .12s;
+}
+.nei-task:hover .nei-task-flags,
+.nei-task.selected .nei-task-flags { opacity: .7; }
+
 .nei-flag { font-size: 11.5px; color: var(--nei-muted); display: inline-flex; align-items: center; gap: 4px; }
 .nei-flag-date { font-variant-numeric: tabular-nums; }
 .nei-flag-list::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--nei-muted); }
@@ -131,9 +96,19 @@
 .nei-flag-list.is-personal::before { background: #ef6f6c; }
 .nei-flag-alarm { color: var(--nei-accent-soft-text); }
 
-.nei-task-go { flex: none; align-self: center; width: 16px; height: 16px; color: var(--nei-muted); opacity: 0; transition: opacity .12s, transform .12s; }
-.nei-task:hover .nei-task-go { opacity: .8; }
-.nei-task.selected .nei-task-go { opacity: 1; color: var(--nei-accent); transform: translateX(1px); }
+/* chevron removed (kept hidden in case the Java still adds it) */
+.nei-task-go { display: none; }
+
+/* round, thin-outline checkbox */
+.nei-task vaadin-checkbox { margin: 0; --vaadin-checkbox-size: 20px; }
+.nei-task vaadin-checkbox::part(checkbox) {
+    border-radius: 50%;
+    background: transparent;
+    box-shadow: inset 0 0 0 1.5px var(--nei-muted);
+    transition: box-shadow .12s ease, background .12s ease;
+}
+.nei-task vaadin-checkbox:hover::part(checkbox) { box-shadow: inset 0 0 0 1.5px var(--nei-text); }
+.nei-task vaadin-checkbox[checked]::part(checkbox) { background: var(--nei-accent); box-shadow: none; }
 
 /* ---- RIGHT zone: the inspector card ---- */
 .nei-detail {
@@ -145,7 +120,7 @@
     display: flex; flex-direction: column;
 }
 
-/* empty state — "Today at a glance" (never a dead pane) */
+/* empty state — "Today at a glance" */
 .nei-det-empty { padding: 22px 20px; display: flex; flex-direction: column; gap: 14px; align-items: flex-start; }
 .nei-det-empty-cat {
     width: 96px; height: 64px; align-self: center; margin: 4px 0 2px;
@@ -161,7 +136,7 @@
 .nei-det-hint { font-size: 12.5px; color: var(--nei-muted); }
 .nei-det-empty .nei-warn { width: 100%; margin-top: 2px; }
 
-/* editor state — sectioned, narrow-pane friendly (labels stack over fields) */
+/* editor state — sectioned, labels stack over fields */
 .nei-det-editor { padding: 18px 18px 0; display: flex; flex-direction: column; gap: 4px; flex: 1; min-height: 0; }
 .nei-det-sec { padding: 10px 0; border-top: 1px solid var(--nei-line); display: flex; flex-direction: column; gap: 8px; }
 .nei-det-sec:first-child { border-top: 0; padding-top: 2px; }
@@ -191,8 +166,10 @@
 .nei-sub-row { display: flex; align-items: center; gap: 8px; font-size: 13.5px; }
 .nei-sub-row span { color: var(--nei-text); overflow-wrap: anywhere; }
 
-.nei-note { background: #fbf4d6; border-radius: 10px; padding: 10px 12px; font-size: 13px; margin-top: 4px; }
-.nei-note { max-height: 120px; overflow: auto; white-space: pre-wrap; overflow-wrap: anywhere; }
+.nei-note {
+    background: var(--nei-accent-soft); border-radius: 10px; padding: 10px 12px; margin-top: 4px;
+    font-size: 13px; max-height: 120px; overflow: auto; white-space: pre-wrap; overflow-wrap: anywhere;
+}
 
 .nei-actions {
     position: sticky; bottom: 0; margin: 8px -18px 0; padding: 12px 18px;
@@ -202,7 +179,21 @@
 }
 .nei-actions vaadin-button, .nei-actions button { flex: 1; }
 
-/* ---- responsive: never hide the editor (the old rule did, under 1100px) ---- */
+/* ---- inspector toggle ---- */
+.nei-panel-btn {
+    flex: none; width: 34px; height: 34px; min-width: 0; margin: 0; padding: 0;
+    display: grid; place-items: center; cursor: pointer;
+    border: 1px solid var(--nei-line) !important; border-radius: 10px;
+    background: var(--nei-surface) !important; color: var(--nei-muted) !important;
+    transition: background .12s, color .12s;
+}
+.nei-panel-btn:hover { background: var(--nei-hover) !important; color: var(--nei-text) !important; }
+.nei-panel-btn vaadin-icon { width: 16px; height: 16px; color: inherit; }
+
+/* panel hidden: the list takes the full width (beats the responsive rules below) */
+.nei-today.detail-closed { grid-template-columns: minmax(0, 1fr); grid-template-rows: none; }
+
+/* ---- responsive: never hide the editor ---- */
 @media (max-width: 1040px) {
     .nei-today { grid-template-columns: minmax(0,1fr) 320px; gap: 12px; padding: 12px; }
     .nei-bar-search { width: 150px; }
@@ -212,7 +203,7 @@
     .nei-detail { max-height: 56vh; }
 }
 
-/* ---- Today field backgrounds: soft fill, no border (border killed globally in base.css) ---- */
+/* ---- field backgrounds: soft fill, no border (border killed globally in base.css) ---- */
 .nei-today vaadin-text-field::part(input-field),
 .nei-today vaadin-text-area::part(input-field),
 .nei-today vaadin-select::part(input-field),
@@ -221,18 +212,11 @@
     border-radius: 12px;
 }
 
-/* The big editable title in the inspector should stay borderless AND backgroundless */
-.nei-today .nei-det-title::part(input-field) {
-    background: transparent;
-    border-radius: 0;
-}
+/* overrides of the rule above — keep AFTER it */
+.nei-today .nei-det-title::part(input-field) { background: transparent; border-radius: 0; }
+.nei-today .nei-add::part(input-field) { background: transparent; padding-left: 8px; }
 
-/* ---- theme recolour (today parts only) — BOTTOM so it wins ---- */
-.nei-pillf.on { background: var(--nei-accent); color: var(--nei-accent-text); }
-.nei-task.selected { background: var(--nei-selected); border-left-color: var(--nei-accent); }
-.nei-flag-list.is-work::before { background: #4cc3d9; }
-.nei-flag-list.is-personal::before { background: #ef6f6c; }
-.nei-note { background: var(--nei-accent-soft); }
+/* ---- dark theme ---- */
 .theme-dark .nei-detail { box-shadow: 0 10px 30px rgba(0,0,0,.5); }
 .theme-dark .nei-det-empty-cat { filter: invert(1); mix-blend-mode: screen; }
 .theme-dark .nei-over { background: color-mix(in srgb, #ff6961 22%, var(--nei-surface)); color: #ff8a80; }

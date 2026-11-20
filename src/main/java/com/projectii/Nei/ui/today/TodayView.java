@@ -35,6 +35,8 @@ public class TodayView extends NeiView {
     private final SettingsUiService settings;
     private final UiState state;
     private String query = "";
+    private boolean detailOpen = true;
+
 
     public TodayView(TaskUiService tasks, SettingsUiService settings, UiState state) {
         this.tasks = tasks;
@@ -55,8 +57,9 @@ public class TodayView extends NeiView {
     }
 
     private Component buildToday() {
-        Div wrap = new Div(buildMain(), buildDetail());
+        Div wrap = detailOpen ? new Div(buildMain(), buildDetail()) : new Div(buildMain());
         wrap.addClassName("nei-today");
+        if (!detailOpen) wrap.addClassName("detail-closed");
         return wrap;
     }
 
@@ -84,6 +87,8 @@ public class TodayView extends NeiView {
         left.add(greet, sub, date);
 
         Div right = new Div();
+        right.add(panelToggle());
+        bar.add(left, right);
         right.addClassName("nei-bar-right");
 
         TextField search = new TextField();
@@ -175,11 +180,10 @@ public class TodayView extends NeiView {
         String q = query.toLowerCase();
         List<TaskItem> rows = new ArrayList<>();
         tasks.all().stream()
+                .filter(t -> !t.done)
                 .filter(t -> state.listFilter == null || t.list.equals(state.listFilter))
                 .filter(t -> q.isBlank() || contains(t.title, q) || contains(t.note, q) || contains(t.description, q))
                 .forEach(rows::add);
-
-        rows.sort((a, b) -> Boolean.compare(a.done, b.done)); // open first, done sink to the bottom
 
         if (rows.isEmpty()) {
             Div empty = new Div(q.isBlank() ? "Nothing here — add a task above." : "No tasks match “" + query + "”.");
@@ -252,6 +256,7 @@ public class TodayView extends NeiView {
         row.add(cb, body, chevron);
         row.addClickListener(e -> {
             state.selected = t;
+            detailOpen = true;
             refresh();
         });
         return row;
@@ -458,5 +463,18 @@ public class TodayView extends NeiView {
         s.addClassName("nei-tag");
         s.addClassName(cls);
         return s;
+    }
+
+    private Component panelToggle() {
+        Button b = new Button(new Icon(detailOpen ? VaadinIcon.ANGLE_DOUBLE_RIGHT : VaadinIcon.ANGLE_DOUBLE_LEFT));
+        b.addClassName("nei-panel-btn");
+        String tip = detailOpen ? "Hide details" : "Show details";
+        b.getElement().setAttribute("title", tip);
+        b.getElement().setAttribute("aria-label", tip);
+        b.addClickListener(e -> {
+            detailOpen = !detailOpen;
+            refresh();
+        });
+        return b;
     }
 }

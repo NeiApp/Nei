@@ -2,7 +2,6 @@ package com.projectii.Nei.ui.model;
 
 import java.time.LocalTime;
 
-/** Settings that follow the person to the phone (sync these). */
 public class AccountSettings {
     public String userName; // null until the welcome screen is completed
     public String timezone = java.time.ZoneId.systemDefault().getId();

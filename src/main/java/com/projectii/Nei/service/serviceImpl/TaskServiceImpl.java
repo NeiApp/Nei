@@ -8,6 +8,8 @@ import com.projectii.Nei.payload.request.*;
 import com.projectii.Nei.payload.response.AlarmResponse;
 import com.projectii.Nei.payload.response.CreatedTask;
 import com.projectii.Nei.payload.utitityRecords.AlarmNotification;
+import com.projectii.Nei.repository.ScheduleRunRepository;
+import com.projectii.Nei.repository.TaskLinkRepository;
 import com.projectii.Nei.repository.TaskRepository;
 import com.projectii.Nei.repository.WeekDayRepository;
 import com.projectii.Nei.repository.WeekRepository;
@@ -34,6 +36,10 @@ public class TaskServiceImpl implements TaskService {
     private final WeekDayRepository weekDayRepository;
 
     private final TaskRepository taskRepository;
+
+    private final TaskLinkRepository taskLinkRepository;
+
+    private final ScheduleRunRepository scheduleRunRepository;
 
     private final NotificationSender notifier;
 
@@ -71,6 +77,7 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<CreatedTask> getTodayTasks() {
         LocalDate today = LocalDate.now();
         List<Task> tasks = taskRepository.findByDate(today);
@@ -128,7 +135,11 @@ public class TaskServiceImpl implements TaskService {
 
 
     @Override
+    @Transactional
     public void deleteTask(UUID id) {
+        // threads and schedule runs point at the task with foreign keys: let go of them first
+        taskLinkRepository.deleteByFromTaskIdOrToTaskId(id, id);
+        scheduleRunRepository.clearCurrentTask(id);
         taskRepository.deleteById(id);
     }
 

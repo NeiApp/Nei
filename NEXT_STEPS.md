@@ -25,6 +25,21 @@ The full plan is in the roadmap document ("Nei: structure and backend roadmap").
 
 Routes: `/today`, `/calendar`, `/notes`, `/schedule`, `/review`, `/settings`, `/welcome`.
 
+## Wired to the backend (default run, no profile)
+`ui/service/impl` now holds the real services. The mocks only load with `--spring.profiles.active=mock`.
+| Screen data | Real class | Notes |
+|---|---|---|
+| Tasks, links, canvas positions | `TaskUiServiceImpl` | Same `TaskItem` object per task (views use `==`). Reloads after every change. Time text must look like `09:00 - 10:00`. |
+| Settings, your name | `SettingsUiServiceImpl` | One row in `Settings`. Also does "Delete all data". |
+| Review numbers | `ReviewUiServiceImpl` | Counted from tasks. The sentences are plain rules until Spring AI exists. |
+| Standalone notes | still `MockNoteUiService` | Backend has no Note entity yet. |
+
+Backend fixes made for this: `TaskLinkServiceImpl.createLink` never saved (now saves, checks loops, adds `relink`);
+`deleteTask` now removes threads and schedule-run references first; `TaskMapper` dropped category and subtasks;
+`TaskLinkDto` carries both ends; `Settings` gained `themeMode` and `sidebarTransparent`; `AccentColors`/`AlarmSounds`
+have the values the UI offers; `SubTasks.done`; H2 is now a file database (`./data/nei`, roadmap #1).
+Not wired yet: Schedule Play/Stop still runs in the UI only (backend runs exist in `SchedulerService`).
+
 ## How to connect the backend, one screen at a time
 1. Pick an interface in `ui/service` (start with `TaskUiService`).
 2. Write a real class that implements it using your repositories, and map entities to the `model` classes.
